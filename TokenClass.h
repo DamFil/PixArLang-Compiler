@@ -1,3 +1,8 @@
+#pragma once
+
+#include <string>
+using namespace std;
+
 enum TokenName
 {
     // syntactic categories
@@ -53,5 +58,15 @@ enum TokenName
     IDENTIFIER,        //* ([A...Z]|[a...z])(_|[A...Z]|[a...z]|[0...9])*
     INT_LIT,           //* [0...9]([0...9])*
     FLOAT_LIT,         //* [0...9]([0...9])*.[0...9]([0...9])*
-    COL_LIT            //* (([A...F]|[a...f])([0...9]))^6
+    COL_LIT,           //* (([A...F]|[a...f])([0...9]))^6
+    NULL_TOKEN
+};
+
+struct token
+{
+    string lexeme;
+    TokenName type;
+
+    token() : lexeme(""), type(NULL_TOKEN) {}                  // default constructor
+    token(string word, TokenName t) : lexeme(word), type(t) {} // parametrized constructor
 };
