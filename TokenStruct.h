@@ -29,6 +29,9 @@ enum TokenName
     KEY_PAD_RANDI,     //*__randi
     KEY_PAD_READ,      //*__read
                        //? operators
+    OP_MUL,            //* * , / , and
+    OP_ADD,            //* + , - , or
+    OP_REL,            //* < , > , == , != , <=, >=
     OP_MUL_MUL,        //* *
     OP_MUL_DIV,        //* /
     OP_MUL_AND,        //* and
