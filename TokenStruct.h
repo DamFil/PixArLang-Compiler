@@ -14,7 +14,7 @@ enum TokenName
     KEY_RETURN,        //* return
     KEY_T_BOOL,        //* bool
     KEY_BOOL_LIT_T,    //* true
-    KEY_BOOL_LET_F,    //* false
+    KEY_BOOL_LIT_F,    //* false
     KEY_T_INT,         //* int
     KEY_T_FLOAT,       //* float
     KEY_T_COLOUR,      //* colour
@@ -74,7 +74,7 @@ vector<string> StringTokenNames =
         "KEY_RETURN",
         "KEY_T_BOOL",
         "KEY_BOOL_LIT_T",
-        "KEY_BOOL_LET_F",
+        "KEY_BOOL_LIT_F",
         "KEY_T_INT",
         "KEY_T_FLOAT",
         "KEY_T_COLOUR",

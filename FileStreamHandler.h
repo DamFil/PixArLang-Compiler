@@ -43,7 +43,9 @@ class FileHandler {
         return c;
     }
 
-    void RollBack() {
-        --inputpos;
+    int RollBack() {
+        if (inputpos == 0)
+            return -1;
+        --inputpos; return 0;
     }
 };
