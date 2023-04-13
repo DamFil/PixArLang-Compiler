@@ -3,8 +3,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include "TokenStruct.h"
 
 using namespace std;
+
+enum types {keyword,punctuation};
 
 const vector<string> keywords = 
 {"if","else","for","while","bool","int","float","colour","true","and","or","not"
@@ -19,6 +23,7 @@ const vector<string> operators =
 const vector<string> relational_operators =
 {"=","<",">","==","<=",">=","!="};
 
+// -1 is an error state
 const vector<vector<int>> transition_table =
 {//                            0    1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26
         /* a-f */           {  1,   1, -1, -1,  5,  6,  7,  8,  9, 10,  -1, -1, -1, -1, -1, -1, -1, 17, -1, 19, -1, 19, -1, -1, -1, -1, -1},
@@ -37,4 +42,22 @@ const vector<vector<int>> transition_table =
         /* . */             { -1,  -1,  3, -1, -1, -1, -1, -1, -1, -1,  -1, -1, -1, -1, -1, -1, -1, 17, -1, 19, -1, 19, -1, -1, -1, -1, -1},
         /* \n */            { 26,  -1, -1, -1, -1, -1, -1, -1, -1, -1,  -1, -1, -1, -1, -1, -1, -1, 18, -1, 20, -1, 19, -1, -1, -1, -1, -1},
         /* (,),{,},;,:,, */ { 23,  -1, -1, -1, -1, -1, -1, -1, -1, -1,  -1, -1, -1, -1, -1, -1, -1, 17, -1, 19, -1, 19, -1, -1, -1, -1, -1}
+};
+
+class Scanner {
+private:
+        vector<token> ScannedTokens;
+        string program_to_scan;
+public:
+        Scanner();
+        Scanner(string path);
+        void displayTokens();
+        int getTransitionTableRow(char letter);
+        bool isKeyword(string word);
+        bool isPunctuation(string word);
+        bool isOperator(string word);
+        bool isRelationalOperator(string word);
+        token getCategoryFromState(string word, int state);
+        void scanInput(string filestream);
+        token getNextToken();
 };

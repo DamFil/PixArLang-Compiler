@@ -62,14 +62,76 @@ enum TokenName
     INT_LIT,           //* [0...9]([0...9])*
     FLOAT_LIT,         //* [0...9]([0...9])*.[0...9]([0...9])*
     COL_LIT,           //* (([A...F]|[a...f])([0...9]))^6
-    NULL_TOKEN
+    INVALID_TOKEN      //* this is an invalid token
 };
 
-struct token
+vector<string> StringTokenNames =
+{
+        "KEY_IF",
+        "KEY_ELSE",
+        "KEY_FOR",
+        "KEY_WHILE",
+        "KEY_RETURN",
+        "KEY_T_BOOL",
+        "KEY_BOOL_LIT_T",
+        "KEY_BOOL_LET_F",
+        "KEY_T_INT",
+        "KEY_T_FLOAT",
+        "KEY_T_COLOUR",
+        "KEY_VAR_DEC",
+        "KEY_FUN_DEC",
+        "KEY_PRINT",
+        "KEY_DELAY",
+        "KEY_PIX_R",
+        "KEY_PIX",
+        "KEY_PAD_W",
+        "KEY_PAD_H",
+        "KEY_PAD_RANDI",
+        "KEY_PAD_READ",
+        "OP_MUL",
+        "OP_ADD",
+        "OP_REL",
+        "OP_MUL_MUL",
+        "OP_MUL_DIV",
+        "OP_MUL_AND",
+        "OP_ADD_ADD",
+        "OP_ADD_SUB",
+        "OP_ADD_OR",
+        "OP_REL_LESS",
+        "OP_REL_GREAT",
+        "OP_REL_EQUAL",
+        "OP_REL_NOT_EQUAL",
+        "OP_REL_LESS_EQ",
+        "OP_REL_GREAT_EQ",
+        "OP_UNARY_NOT",
+        "OP_ASSIGNMENT",
+        "OP_RET_TYPE",
+        "PUNCT_OPEN_PAR",
+        "PUNCT_CLOSED_PAR",
+        "PUNCT_OPEN_CURL",
+        "PUNCT_CLOSED_CURL",
+        "PUNCT_SEMICOLON",
+        "PUNCT_COLON",
+        "PUNCT_COMMA",
+        "PUNCT_POINT",
+        "PUNCT_HASHTAG",
+        "IDENTIFIER",
+        "INT_LIT",
+        "FLOAT_LIT",
+        "COL_LIT",
+        "INVALID_TOKEN"
+};
+
+string to_str(TokenName category)
+{
+    return StringTokenNames.at(category);
+}
+
+typedef struct generated_token
 {
     string lexeme;
     TokenName type;
 
-    token() : lexeme(""), type(NULL_TOKEN) {}                  // default constructor
-    token(string word, TokenName t) : lexeme(word), type(t) {} // parametrized constructor
-};
+    generated_token() : lexeme(""), type(INVALID_TOKEN) {}                  // default constructor
+    generated_token(string word, TokenName t) : lexeme(word), type(t) {} // parametrized constructor
+} token;
