@@ -101,10 +101,53 @@ token Scanner::handleRelationalOperator(string word) {
 void Scanner::getCategoryFromState(int state, string word) {
     switch(state) {
         case 0:
-            ScannedTokens.push_back(token());
+            ScannedTokens.push_back(token()); 
+            break;
         case 1:
             ScannedTokens.push_back(handleKeyword(word));
+            break;
         case 2:
-
+            ScannedTokens.push_back(handleNumbers(word));
+            break;
+        case 3:
+            ScannedTokens.push_back(token(word, INVALID_TOKEN));
+            break;
+        case 4: case 5: case 6: case 7: case 8: case 9:
+            ScannedTokens.push_back(token(word,INVALID_TOKEN));
+            break;
+        case 10:
+            ScannedTokens.push_back(token(word,COL_LIT));
+            break;
+        case 11:
+            ScannedTokens.push_back(handleOperator(word));
+            break;
+        case 12: case 13:
+            ScannedTokens.push_back(handleRelationalOperator(word));
+            break;
+        case 14:
+            cout << "Invalid Syntax: Incorrect use of \"!\"" << endl;
+            ScannedTokens.push_back(token(word,INVALID_TOKEN));
+            break;
+        case 15:
+            ScannedTokens.push_back(token(word,OP_REL_NOT_EQUAL)); //! CHANGE THE HANDLE RELATIONAL OPERATORS FUNCTION
+            break;
+        case 16:
+            ScannedTokens.push_back(token(word,OP_MUL_DIV));
+            break;
+        case 17: case 18: case 22: case 26:
+            break; //comments are ignored
+        case 19: case 20: case 21:
+            cout << "Invalid Syntax: Incomplete comment" << word << endl;
+            ScannedTokens.push_back(token(word,INVALID_TOKEN));
+            break;
+        case 23:
+            ScannedTokens.push_back(handlePunctuation(word));
+            break;
+        case 24:
+            ScannedTokens.push_back(token(word,OP_ADD_SUB));
+            break;
+        case 25:
+            ScannedTokens.push_back(token(word,OP_RET_TYPE));
+            break;
     }
 }
