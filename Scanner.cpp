@@ -3,18 +3,37 @@
 //constructors
 Scanner::Scanner() {
     ScannedTokens = {};
+    States = {};
     file = FileHandler();
 }
 
 Scanner::Scanner(string path) {
     ScannedTokens = {};
+    States = {};
     file = FileHandler(path);
+}
+
+int Scanner::popState() {
+    if (States.size() == 0) 
+        return -5;
+    
+    int state = States.at(States.size() - 1);
+    States.pop_back();
+    return state;
+}
+
+bool Scanner::isAccepting(int state) {
+    for (int i = 0; i < acceptingStates.size(); i++) {
+        if (state == acceptingStates.at(i)) 
+            return true;
+    }
+    return false;
 }
 
 void Scanner::displayTokens() {
     cout << "Format: <lexeme,category>" << endl;
     for (auto tn : Scanner::ScannedTokens) {
-        cout << "<" + tn.lexeme + "," + to_str(tn.type) + ">" << endl;
+        cout << tn.to_str() << endl;
     }
 }
 
@@ -74,7 +93,7 @@ token Scanner::handleKeyword(string word) {
     if (check == -1)
         return token(word, IDENTIFIER);
     
-    return token(word, KeyToToken[word]);
+    return token(word, KeyToToken.at(word));
 }
 
 token Scanner::handleNumbers(string word) {
@@ -87,15 +106,15 @@ token Scanner::handleNumbers(string word) {
 }
 
 token Scanner::handlePunctuation(string word) {
-    return token(word,PuncToToken[word]);
+    return token(word,PuncToToken.at(word));
 }
 
 token Scanner::handleOperator(string word) {
-    return token(word, OpToToken[word]);
+    return token(word, OpToToken.at(word));
 }
 
 token Scanner::handleRelationalOperator(string word) {
-    return token(word, RelToToken[word]);
+    return token(word, RelToToken.at(word));
 }
 
 void Scanner::getCategoryFromState(int state, string word) {
@@ -149,5 +168,37 @@ void Scanner::getCategoryFromState(int state, string word) {
         case 25:
             ScannedTokens.push_back(token(word,OP_RET_TYPE));
             break;
+    }
+}
+
+void Scanner::scanInput() {
+    int state = 0;
+    string word = "";
+    //used instead of a stack
+    this->States = {};
+    States.push_back(-2);
+
+    while (this->file.getCurrPos() < this->file.getSizeOfProgram()) {
+        while(state != -1) {
+            char c = this->file.NextChar();
+            word += c;
+            if (isAccepting(state)) {
+                this->States = {};
+                States.push_back(-2);
+            }
+            States.push_back(state);
+            int row = getTransitionTableRow(c);
+            state = transition_table[row][state];
+        }
+
+        while (!isAccepting(state) || state != -2) {
+            state = popState();
+            if (state != -2) {
+                word.pop_back();
+                this->file.RollBack();
+            }
+        }
+
+        getCategoryFromState(state, word);
     }
 }

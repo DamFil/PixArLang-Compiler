@@ -1,16 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include <string>
-#include <vector>
 #include <fstream>
 #include <map>
 #include "TokenStruct.h"
 #include "FileStreamHandler.h"
 
 using namespace std;
-
-enum types {keyword,punctuation};
 
 const vector<string> keywords =
     {"if", "else", "for", "while", "bool", "int", "float", "colour", "true", "false", "and", "or", "not",
@@ -46,8 +42,9 @@ const vector<vector<int>> transition_table =
         /* (,),{,},;,:,, */ { 23,  -1, -1, -1, -1, -1, -1, -1, -1, -1,  -1, -1, -1, -1, -1, -1, -1, 17, -1, 19, -1, 19, -1, -1, -1, -1, -1}
 };
 
+const vector<int> acceptingStates {1, 2, 10, 11, 12, 13, 15, 16, 17, 18, 22, 23, 24, 25, 26};
 
-map<string,TokenName> KeyToToken
+const map<string,TokenName> KeyToToken
 {
         {"if",KEY_IF},
         {"else",KEY_ELSE},
@@ -75,7 +72,7 @@ map<string,TokenName> KeyToToken
         {"__read",KEY_PAD_READ}
 };
 
-map<string,TokenName> PuncToToken
+const map<string,TokenName> PuncToToken
 {
         {"(",PUNCT_OPEN_PAR},
         {")",PUNCT_CLOSED_PAR},
@@ -86,7 +83,7 @@ map<string,TokenName> PuncToToken
         {",",PUNCT_COMMA}
 };
 
-map<string,TokenName> OpToToken
+const map<string,TokenName> OpToToken
 {
         {"+",OP_ADD_ADD},
         {"-",OP_ADD_SUB},
@@ -94,7 +91,7 @@ map<string,TokenName> OpToToken
         {"/",OP_MUL_DIV}        
 };
 
-map<string,TokenName> RelToToken
+const map<string,TokenName> RelToToken
 {
         {"=",OP_ASSIGNMENT},
         {"<",OP_REL_LESS},
@@ -110,12 +107,9 @@ private:
         vector<token> ScannedTokens;
         vector<int> States;
         FileHandler file;
-public:
-        //constructors
-        Scanner();
-        Scanner(string path);
 
-        void displayTokens();
+        int popState();
+        bool isAccepting(int state);
         int getTransitionTableRow(char letter);
 
         token handleKeyword(string word);
@@ -124,7 +118,12 @@ public:
         token handleOperator(string word);
         token handleRelationalOperator(string word);
         void getCategoryFromState(int state, string word);
-        
-        void scanInput(string filestream);
+public:
+        //constructors
+        Scanner();
+        Scanner(string path);
+
+        void displayTokens();        
+        void scanInput();
         token getNextToken();
 };

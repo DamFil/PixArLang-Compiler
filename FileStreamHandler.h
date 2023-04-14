@@ -12,6 +12,7 @@ class FileHandler {
         fstream file;
         string buffer;
         int inputpos;
+        
     public:
         FileHandler() : inputpos(0) {
             cout << "Specify the path of the file to compile: ";
@@ -36,16 +37,24 @@ class FileHandler {
                 buffer = { (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) };
         }
 
-    char NextChar() {
-        char c = buffer.at(inputpos);
-        if (c != EOF) 
-            ++inputpos;
-        return c;
-    }
+        char NextChar() {
+            char c = buffer.at(inputpos);
+            if (c != EOF) 
+                ++inputpos;
+            return c;
+        }
 
-    int RollBack() {
-        if (inputpos == 0)
-            return -1;
-        --inputpos; return 0;
-    }
+        int RollBack() {
+            if (inputpos == 0)
+                return -1;
+            --inputpos; return 0;
+        }
+
+        int getSizeOfProgram() {
+            return this->buffer.length();
+        }
+
+        int getCurrPos() {
+            return this->inputpos;
+        }
 };

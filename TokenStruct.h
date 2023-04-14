@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 using namespace std;
 
 enum TokenName
@@ -65,7 +66,7 @@ enum TokenName
     INVALID_TOKEN      //* this is an invalid token
 };
 
-vector<string> StringTokenNames =
+const vector<string> StringTokenNames =
 {
         "KEY_IF",
         "KEY_ELSE",
@@ -122,11 +123,6 @@ vector<string> StringTokenNames =
         "INVALID_TOKEN"
 };
 
-string to_str(TokenName category)
-{
-    return StringTokenNames.at(category);
-}
-
 typedef struct generated_token
 {
     string lexeme;
@@ -134,4 +130,8 @@ typedef struct generated_token
 
     generated_token() : lexeme(""), type(INVALID_TOKEN) {}                  // default constructor
     generated_token(string word, TokenName t) : lexeme(word), type(t) {} // parametrized constructor
+
+    string to_str() {
+        return "<" + this->lexeme + "," + StringTokenNames.at(this->type) + ">";
+    }
 } token;
