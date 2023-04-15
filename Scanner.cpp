@@ -1,16 +1,16 @@
 #include "Scanner.h"
 
 //constructors
-Scanner::Scanner() {
+Scanner::Scanner() : file(FileHandler(path)) {
+    cout << "Specify the path to the program: ";
+    cin >> path;
     ScannedTokens = {};
     States = {};
-    file = FileHandler();
 }
 
-Scanner::Scanner(string path) {
+Scanner::Scanner(string p) : path(p), file(FileHandler(p)) {
     ScannedTokens = {};
     States = {};
-    file = FileHandler(path);
 }
 
 int Scanner::popState() {
@@ -38,15 +38,15 @@ void Scanner::displayTokens() {
 }
 
 int Scanner::getTransitionTableRow(char c) {
-    if ('a' <= c <= 'f')
+    if ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
         return 0;
-    else if ('g' <= c <= 'z')
+    else if ((c >= 'g' && c <= 'z') || (c>= 'G' && c <= 'Z'))
         return 1;
     else if (isdigit(c))
         return 2;
     else if (c == '(' || c == ')' || c == '{' || c == '}' || c == ';' || c == ':' || c == ',')
-        return 16;
-    
+        return 15;
+
     switch(c) {
         case '+':
             return 3;
@@ -70,7 +70,7 @@ int Scanner::getTransitionTableRow(char c) {
             return 12;
         case '.':
             return 13;
-        case '\n':
+        case '\n': case ' ': case '\t':
             return 14;
     }
 }
@@ -172,13 +172,14 @@ void Scanner::getCategoryFromState(int state, string word) {
 }
 
 void Scanner::scanInput() {
-    int state = 0;
-    string word = "";
-    //used instead of a stack
-    this->States = {};
-    States.push_back(-2);
-
     while (this->file.getCurrPos() < this->file.getSizeOfProgram()) {
+        //initializing
+        int state = 0;
+        string word = "";
+        //used instead of a stack
+        this->States = {};
+        States.push_back(-2);
+
         while(state != -1) {
             char c = this->file.NextChar();
             word += c;
@@ -191,7 +192,7 @@ void Scanner::scanInput() {
             state = transition_table[row][state];
         }
 
-        while (!isAccepting(state) || state != -2) {
+        while (!isAccepting(state) && state != -2) {
             state = popState();
             if (state != -2) {
                 word.pop_back();

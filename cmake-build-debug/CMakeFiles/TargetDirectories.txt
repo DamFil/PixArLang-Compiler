@@ -1,0 +1,3 @@
+/home/damfil/Uni/CompilerTheory/Assignment/cmake-build-debug/CMakeFiles/Assignment.dir
+/home/damfil/Uni/CompilerTheory/Assignment/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/damfil/Uni/CompilerTheory/Assignment/cmake-build-debug/CMakeFiles/rebuild_cache.dir

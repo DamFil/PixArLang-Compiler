@@ -14,17 +14,7 @@ class FileHandler {
         int inputpos;
         
     public:
-        FileHandler() : inputpos(0) {
-            cout << "Specify the path of the file to compile: ";
-            cin >> path;
-            file.open(path, ifstream::in);
-            if (!file.is_open()) {
-                cout << "Error: Cannot open file at: " + path << endl;
-                buffer = "";
-            } 
-            else 
-                buffer = { (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) };
-        }
+        FileHandler() = delete;
 
         FileHandler(string p) : path(p) , inputpos(0) {
             file.open(path, ifstream::in);
@@ -38,14 +28,16 @@ class FileHandler {
         }
 
         char NextChar() {
-            char c = buffer.at(inputpos);
-            if (c != EOF) 
+            char c = 'EOF';
+            if (inputpos < buffer.size()) {
+                c = buffer.at(inputpos);
                 ++inputpos;
+            }
             return c;
         }
 
         int RollBack() {
-            if (inputpos == 0)
+            if (inputpos == 0 || inputpos == 115)
                 return -1;
             --inputpos; return 0;
         }
