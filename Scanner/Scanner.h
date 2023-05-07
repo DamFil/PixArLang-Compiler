@@ -4,7 +4,7 @@
 #include <fstream>
 #include <map>
 #include "TokenStruct.h"
-#include "FileStreamHandler.h"
+#include "Scanner/FileStreamHandler.h"
 
 using namespace std;
 
@@ -108,6 +108,7 @@ private:
         vector<token> ScannedTokens;
         vector<int> States;
         FileHandler file;
+        int current;
 
         int popState();
         bool isAccepting(int state);
@@ -126,5 +127,6 @@ public:
 
         void displayTokens();        
         void scanInput();
+        token peek();
         token getNextToken();
 };

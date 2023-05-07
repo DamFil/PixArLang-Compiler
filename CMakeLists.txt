@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(.)
 
 add_executable(Assignment
-        FileStreamHandler.h
-        Scanner.cpp
-        Scanner.h
-        test.cpp
-        TokenStruct.h)
+        Scanner/FileStreamHandler.h
+        Scanner/Scanner.cpp
+        Scanner/Scanner.h
+        Tests/test.cpp
+        Scanner/TokenStruct.h)

@@ -1,14 +1,14 @@
 #include "Scanner.h"
 
 //constructors
-Scanner::Scanner() : file(FileHandler(path)) {
+Scanner::Scanner() : file(FileHandler(path)), current(0) {
     cout << "Specify the path to the program: ";
     cin >> path;
     ScannedTokens = {};
     States = {};
 }
 
-Scanner::Scanner(string p) : path(p), file(FileHandler(p)) {
+Scanner::Scanner(string p) : path(p), file(FileHandler(p)), current(0) {
     ScannedTokens = {};
     States = {};
 }
@@ -202,4 +202,19 @@ void Scanner::scanInput() {
 
         getCategoryFromState(state, word);
     }
+}
+
+token Scanner::peek() {
+    return ScannedTokens.at(current);
+}
+
+token Scanner::getNextToken() {
+    token t;
+    try {
+        t = ScannedTokens.at(current);
+    } catch(std::out_of_range) {
+        return ScannedTokens.at(ScannedTokens.size() - 1);
+    }
+    ++current;
+    return t;
 }
