@@ -244,7 +244,16 @@ void Scanner::scanInput()
 
 token Scanner::peekNextToken()
 {
-    return ScannedTokens.at(current);
+    token t;
+    try
+    {
+        t = ScannedTokens.at(current);
+    }
+    catch (std::out_of_range)
+    {
+        return ScannedTokens.at(ScannedTokens.size() - 1);
+    }
+    return t;
 }
 
 token Scanner::getNextToken()
