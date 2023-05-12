@@ -2,6 +2,7 @@
 
 #include "../Scanner/TokenStruct.h"
 #include "../Scanner/Scanner.h"
+#include "AST.h"
 
 /*TODO:
  * 1) Create functions for each non terminal
@@ -32,34 +33,34 @@ public:
 
     bool type();
     bool boolLit();
-    bool padRead();
-    bool padRandI();
-    bool lit();
-    bool mulOp();
-    bool addOp();
-    bool relOp();
-    bool actualParams();
-    bool actualParamsPrime();
-    bool funCall();
-    bool subExpr();
-    bool unary();
-    bool term();
-    bool termPrime();
-    bool simpleExpr();
-    bool simpleExprPrime();
-    bool expr();
-    bool exprPrime();
-    bool assignment();
-    bool varDec();
+    ASTNode *padRead();
+    ASTNode *padRandI();
+    ASTNode *lit();
+    ASTNode *mulOp();
+    ASTNode *addOp();
+    ASTNode *relOp();
+    ASTNode *actualParams();
+    ASTNode *actualParamsPrime();
+    ASTNode *funCall();
+    ASTNode *subExpr();
+    ASTNode *unary();
+    ASTNode *term();
+    ASTNode *termPrime();
+    ASTNode *simpleExpr();
+    ASTNode *simpleExprPrime();
+    ASTNode *expr();
+    ASTNode *exprPrime();
+    ASTNode *assignment();
+    ASTNode *varDec();
     // statements
-    bool printStmnt();
-    bool delayStmnt();
-    bool pixelStmnt();
-    bool rtrnStmnt();
-    bool ifStmnt();
-    bool forStmnt();
-    bool statement();
+    ASTNode *printStmnt();
+    ASTNode *delayStmnt();
+    ASTNode *pixelStmnt();
+    ASTNode *rtrnStmnt();
+    ASTNode *ifStmnt();
+    ASTNode *forStmnt();
+    ASTNode *statement();
 
-    bool block();
-    bool proagram();
+    ASTNode *block();
+    ASTNode *program();
 };

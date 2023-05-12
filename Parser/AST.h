@@ -166,6 +166,19 @@ public:
     }
 };
 
+class ASTFunCall : public ASTNode
+{
+public:
+    ASTNode *id;
+    ASTNode *params;
+    ASTFunCall(ASTNode *id, ASTNode *params) : id(id), params(params) {}
+    virtual ~ASTFunCall()
+    {
+        delete id;
+        delete params;
+    }
+};
+
 class ASTParams : public ASTNode
 {
 public:
@@ -193,6 +206,7 @@ public:
 
 class ASTRandiStmnt : public ASTNode
 {
+public:
     ASTNode *expression;
     ASTRandiStmnt(ASTNode *expression) : expression(expression) {}
     virtual ~ASTRandiStmnt()
@@ -241,5 +255,18 @@ class ASTDelayStmnt : public ASTNode
     virtual ~ASTDelayStmnt()
     {
         delete expression;
+    }
+};
+
+class ASTReadStmnt : public ASTNode
+{
+public:
+    ASTNode *expr1;
+    ASTNode *expr2;
+    ASTReadStmnt(ASTNode *expr1, ASTNode *expr2) : expr1(expr1), expr2(expr2) {}
+    virtual ~ASTReadStmnt()
+    {
+        delete expr1;
+        delete expr2;
     }
 };

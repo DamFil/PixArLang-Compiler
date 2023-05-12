@@ -265,7 +265,7 @@ token Scanner::getNextToken()
     }
     catch (std::out_of_range)
     {
-        return ScannedTokens.at(ScannedTokens.size() - 1);
+        return generated_token("EOF", INVALID_TOKEN);
     }
     ++current;
     return t;
