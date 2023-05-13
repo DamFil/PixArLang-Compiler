@@ -20,6 +20,15 @@ class ASTLit : public ASTNode
 public:
     string value;
     ASTLit(string v) : value(v) {}
+    virtual ~ASTLit() {}
+};
+
+class ASTType : public ASTNode
+{
+public:
+    string type;
+    ASTType(string type) : type(type) {}
+    virtual ~ASTType() {}
 };
 
 class ASTBinOp : public ASTNode
@@ -91,6 +100,7 @@ public:
 
 class ASTIfStmn : public ASTNode
 {
+public:
     ASTNode *cond;     // should be the ASTBinOP
     ASTNode *ifbody;   // same as ASTBlock
     ASTNode *elsebody; // same as ASTBlock
@@ -146,21 +156,19 @@ public:
 
 class ASTFor : public ASTNode
 {
+public:
     ASTNode *vardec;
     ASTNode *expr;
     ASTNode *assignment;
-    vector<ASTNode *> expressions;
-    ASTFor(ASTNode *vardec, ASTNode *expr = nullptr, ASTNode *assignment = nullptr, vector<ASTNode *> expressions)
-        : vardec(vardec), expr(expr), assignment(assignment), expressions(expressions) {}
+    ASTNode *block;
+    ASTFor(ASTNode *vardec = nullptr, ASTNode *expr, ASTNode *assignment = nullptr, ASTNode *block)
+        : vardec(vardec), expr(expr), assignment(assignment), block(block) {}
     virtual ~ASTFor()
     {
         delete vardec;
         delete expr;
         delete assignment;
-        for (int i = 0; i < expressions.size(); i++)
-        {
-            delete expressions[i];
-        }
+        delete block;
     }
 };
 
@@ -170,7 +178,8 @@ public:
     ASTNode *id;
     ASTNode *params;
     ASTNode *rtrntype;
-    ASTFunDec(ASTNode *id, ASTNode *params, ASTNode *rtrntype) : id(id), params(params), rtrntype(rtrntype) {}
+    ASTNode *block;
+    ASTFunDec(ASTNode *id, ASTNode *params, ASTNode *rtrntype, ASTNode *block) : id(id), params(params), rtrntype(rtrntype), block(block) {}
     virtual ~ASTFunDec()
     {
         delete id;
@@ -230,6 +239,7 @@ public:
 
 class ASTPixelStmnt : public ASTNode
 {
+public:
     ASTNode *pixel;
     ASTNode *amount;
     ASTNode *col;
@@ -244,7 +254,8 @@ class ASTPixelStmnt : public ASTNode
 
 class ASTPixelrStmnt : public ASTNode
 {
-    // TODO: probably make this an vector of 5
+public:
+    // TODO: change this approach by merging the class with ASTPixelSDtmnt and setting the extra 2 expressions to nullptr as default values
     ASTNode *expr1;
     ASTNode *expr2;
     ASTNode *expr3;
@@ -263,6 +274,7 @@ class ASTPixelrStmnt : public ASTNode
 
 class ASTDelayStmnt : public ASTNode
 {
+public:
     ASTNode *expression;
     ASTDelayStmnt(ASTNode *expression) : expression(expression) {}
     virtual ~ASTDelayStmnt()

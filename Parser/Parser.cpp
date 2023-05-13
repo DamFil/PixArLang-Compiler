@@ -24,10 +24,9 @@ ASTNode *Parser::program()
     return new ASTProgram(stmnts);
 }
 
-bool Parser::type()
+bool Parser::isType(token t)
 {
-    nextToken();
-    switch (currentToken.type)
+    switch (t.type)
     {
     case KEY_T_INT:
     case KEY_T_BOOL:
@@ -328,4 +327,244 @@ ASTNode *Parser::varDec()
     }
     ASTNode *node = expr();
     return new ASTVarDecl(id, node);
+}
+
+ASTNode *Parser::printStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_PRINT)
+    {
+        cout << "Syntax Error: Missing \"__print\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *node = expr();
+    return new ASTPrintStmnt(node);
+}
+
+ASTNode *Parser::delayStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_DELAY)
+    {
+        cout << "Syntax Error: Missing \"__delay\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *node = expr();
+    return new ASTDelayStmnt(node);
+}
+
+ASTNode *Parser::pixelStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_PIX)
+    {
+        if (currentToken.type != KEY_PIX_R)
+        {
+            cout << "Syntax Error: Missing \"__pixel\" or \"__pixelr\"" << endl;
+            exit(EXIT_FAILURE);
+        }
+        ASTNode *node1 = expr();
+        ASTNode *node2 = expr();
+        ASTNode *node3 = expr();
+        ASTNode *node4 = expr();
+        ASTNode *node5 = expr();
+        return new ASTPixelrStmnt(node1, node2, node3, node4, node5);
+    }
+    ASTNode *node1 = expr();
+    ASTNode *node2 = expr();
+    ASTNode *node3 = expr();
+    return new ASTPixelStmnt(node1, node2, node3);
+}
+
+//! See if this works
+ASTNode *Parser::rtrnStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_RETURN)
+    {
+        cout << "Syntax Error: Missing the return statement (\"return\")" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return expr();
+}
+
+ASTNode *Parser::ifStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_IF)
+    {
+        cout << "Syntax Error: Missing \"if\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_PAR)
+    {
+        cout << "Syntax Error: Missing '('" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *conditon = expr();
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_PAR)
+    {
+        cout << "Syntax Error: Missing '')" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *ifbody = block();
+    if (peekToken().type != KEY_ELSE)
+    {
+        return new ASTIfStmn(conditon, ifbody);
+    }
+    nextToken();
+    // no need to check for else as the previous if tests for that
+    ASTNode *elsebody = block();
+    return new ASTIfStmn(conditon, ifbody, elsebody);
+}
+
+ASTNode *Parser::forStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_FOR)
+    {
+        cout << "Syntax Error: Missing \"for\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_PAR)
+    {
+        cout << "Syntax Error: Missing '('" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    ASTNode *vd = nullptr;
+    if (peekToken().type == KEY_VAR_DEC)
+        // we know there is a variable declaraion in this case
+        vd = varDec();
+
+    ASTNode *condition = expr();
+
+    ASTNode *assnmt = nullptr;
+    if (peekToken().type == IDENTIFIER)
+        // we know there is an assignment statement
+        assnmt = assignment();
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_PAR)
+    {
+        cout << "Syntax Error: Missing ')'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    ASTNode *b = block();
+    return new ASTFor(vd, condition, assnmt, b);
+}
+
+ASTNode *Parser::whileStmnt()
+{
+    nextToken();
+    if (currentToken.type != KEY_WHILE)
+    {
+        cout << "Syntax Error: Missing \"while\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_PAR)
+    {
+        cout << "Syntax Error: Missing '('" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *condition = expr();
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_PAR)
+    {
+        cout << "Syntax Error: Missing ')'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *b = block();
+    return new ASTWhile(condition, b);
+}
+
+ASTNode *Parser::funDec()
+{
+    nextToken();
+    if (currentToken.type != KEY_FUN_DEC)
+    {
+        cout << "Syntax Error: Missing \"fun\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != IDENTIFIER)
+    {
+        cout << "Syntax Error: Missing identifier" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *id = new ASTId(currentToken.lexeme);
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_PAR)
+    {
+        cout << "Syntax Error: Missing '('" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *params = actualParams();
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_PAR)
+    {
+        cout << "Syntax Error: Missing ')'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != OP_RET_TYPE)
+    {
+        cout << "Syntax Error: Missing \"->\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (!isType(currentToken))
+    {
+        cout << "Syntax Error: Missing type" << endl;
+        exit(EXIT_FAILURE);
+    }
+    //! this is possible we might need to refactor some of the code
+    ASTType *t = new ASTType(currentToken.lexeme);
+    ASTNode *b = block();
+    return new ASTFunDec(id, params, t, b);
+}
+
+ASTNode *Parser::statement()
+{
+    ASTNode *n = nullptr;
+    switch (peekToken().type)
+    {
+    case KEY_VAR_DEC:
+        n = varDec();
+    case IDENTIFIER:
+        n = assignment();
+    case KEY_PRINT:
+        n = printStmnt();
+    case KEY_DELAY:
+        n = delayStmnt();
+    case KEY_PIX:
+    case KEY_PIX_R:
+        n = pixelStmnt();
+    case KEY_IF:
+        n = ifStmnt();
+    case KEY_FOR:
+        n = forStmnt();
+    case KEY_WHILE:
+        n = whileStmnt();
+    case KEY_RETURN:
+        n = rtrnStmnt();
+    default:
+        if (peekToken().type == KEY_FUN_DEC)
+            return funDec();
+        if (peekToken().type == PUNCT_OPEN_CURL)
+            return block();
+        cout << "Syntax Error: Statements are not valid" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != PUNCT_SEMICOLON)
+    {
+        cout << "Syntax Error: Missing ';'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return n;
 }

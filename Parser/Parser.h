@@ -59,26 +59,19 @@ public:
     token currentToken;
     Parser() : scan(Scanner()), currentToken(scan.getNextToken()) {}
 
-    bool type();
+    bool isType(token t);
     bool boolLit();
     ASTNode *padRead();
     ASTNode *padRandI();
     ASTNode *lit();
-    ASTNode *mulOp();
-    ASTNode *addOp();
-    ASTNode *relOp();
     ASTNode *actualParams();
-    ASTNode *actualParamsPrime();
     ASTNode *funCall();
     ASTNode *subExpr();
     ASTNode *unary();
     ASTNode *factor();
     ASTNode *term();
-    ASTNode *termPrime();
     ASTNode *simpleExpr();
-    ASTNode *simpleExprPrime();
     ASTNode *expr();
-    ASTNode *exprPrime();
     ASTNode *assignment();
     ASTNode *varDec();
     // statements
@@ -88,6 +81,8 @@ public:
     ASTNode *rtrnStmnt();
     ASTNode *ifStmnt();
     ASTNode *forStmnt();
+    ASTNode *whileStmnt();
+    ASTNode *funDec();
     ASTNode *statement();
 
     ASTNode *block();
