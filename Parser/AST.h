@@ -102,6 +102,7 @@ class ASTIfStmn : public ASTNode
         delete elsebody;
     }
 };
+
 class ASTIfBody : public ASTNode
 {
 public:
@@ -280,5 +281,49 @@ public:
     {
         delete expr1;
         delete expr2;
+    }
+};
+
+// TODO: Merge the below 3 classes into 1 class as they are effectively the same
+
+class ASTTerm : public ASTNode
+{
+public:
+    vector<ASTNode *> factors;
+    ASTTerm(vector<ASTNode *> factors) : factors(factors) {}
+    virtual ~ASTTerm()
+    {
+        for (int i = 0; i < factors.size(); i++)
+        {
+            delete factors[i];
+        }
+    }
+};
+
+class ASTSimpleExpr : public ASTNode
+{
+public:
+    vector<ASTNode *> terms;
+    ASTSimpleExpr(vector<ASTNode *> terms) : terms(terms) {}
+    virtual ~ASTSimpleExpr()
+    {
+        for (int i = 0; i < terms.size(); i++)
+        {
+            delete terms[i];
+        }
+    }
+};
+
+class ASTExpr : public ASTNode
+{
+public:
+    vector<ASTNode *> simpleExprs;
+    ASTExpr(vector<ASTNode *> simpleExprs) : simpleExprs(simpleExprs) {}
+    virtual ~ASTExpr()
+    {
+        for (int i = 0; i < simpleExprs.size(); i++)
+        {
+            delete simpleExprs[i];
+        }
     }
 };

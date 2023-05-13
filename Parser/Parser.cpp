@@ -200,3 +200,62 @@ ASTNode *Parser::factor()
     cout << "Syntax Error: Expected 1 of the following: litera, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
     exit(EXIT_FAILURE);
 }
+
+ASTNode *Parser::term()
+{
+    nextToken();
+    ASTNode *f;
+    ASTBinOp *binop;
+    vector<ASTNode *> binops{};
+    f = factor();
+    while (peekToken().type == OP_MUL_MUL || peekToken().type == OP_MUL_DIV || peekToken().type == OP_MUL_AND)
+    {
+        // creates a vector of binary operation nodes where the value of the node is one of the mul operations
+        // and the children are the factors on which the operations happen
+        nextToken();
+        binop->op = currentToken.lexeme;
+        binop->left = f;
+        f = factor();
+        binop->right = f;
+        binops.push_back(binop);
+    }
+    return new ASTTerm(binops);
+}
+
+ASTNode *Parser::simpleExpr()
+{
+    nextToken();
+    ASTNode *t;
+    ASTBinOp *binop;
+    vector<ASTNode *> binops{};
+    t = term();
+    while (peekToken().type == OP_ADD_ADD || peekToken().type == OP_ADD_SUB || peekToken().type == OP_ADD_OR)
+    {
+        nextToken();
+        binop->op = currentToken.lexeme;
+        binop->left = t;
+        t = term();
+        binop->right = t;
+        binops.push_back(binop);
+    }
+    return new ASTSimpleExpr(binops);
+}
+
+ASTNode *Parser::expr()
+{
+    nextToken();
+    ASTNode *se;
+    ASTBinOp *cond;
+    vector<ASTNode *> conds{};
+    se = simpleExpr();
+    while (peekToken().type == OP_REL_EQUAL || peekToken().type == OP_REL_NOT_EQUAL || peekToken().type == OP_REL_GREAT || peekToken().type == OP_REL_LESS || peekToken().type == OP_REL_GREAT_EQ || peekToken().type == OP_REL_LESS_EQ)
+    {
+        nextToken();
+        cond->op = currentToken.lexeme;
+        cond->left = se;
+        se = factor();
+        cond->right = se;
+        conds.push_back(cond);
+    }
+    return new ASTSimpleExpr(conds);
+}
