@@ -36,6 +36,18 @@ public:
     }
 };
 
+class ASTUnaryOp : public ASTNode
+{
+public:
+    string op;
+    ASTNode *expr;
+    ASTUnaryOp(string op, ASTNode *expr) : op(op), expr(expr) {}
+    virtual ~ASTUnaryOp()
+    {
+        delete expr;
+    }
+};
+
 class ASTProgram : public ASTNode
 {
 public:

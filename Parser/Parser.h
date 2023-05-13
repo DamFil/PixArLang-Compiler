@@ -26,6 +26,34 @@ private:
         return this->scan.peekNextToken();
     }
 
+    bool isLit(token t)
+    {
+        switch (t.type)
+        {
+        case INT_LIT:
+        case FLOAT_LIT:
+        case COL_LIT:
+        case KEY_BOOL_LIT_T:
+        case KEY_BOOL_LIT_F:
+        case KEY_PAD_W:
+        case KEY_PAD_H:
+            return true;
+        default:
+            false;
+        }
+    }
+    bool isId(token t)
+    {
+        return t.type == IDENTIFIER ? true : false;
+    }
+    bool isUnary(token t)
+    {
+        if (t.type == OP_UNARY_NOT || OP_ADD_SUB)
+            return true;
+        else
+            return false;
+    }
+
 public:
     Scanner scan;
     token currentToken;
@@ -44,6 +72,7 @@ public:
     ASTNode *funCall();
     ASTNode *subExpr();
     ASTNode *unary();
+    ASTNode *factor();
     ASTNode *term();
     ASTNode *termPrime();
     ASTNode *simpleExpr();

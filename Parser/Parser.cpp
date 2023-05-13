@@ -15,7 +15,7 @@ ASTNode *Parser::program()
         else
             return node;
     }
-    vector<ASTNode *> stmnts;
+    vector<ASTNode *> stmnts{};
     while (currentToken.lexeme != "EOF")
     {
         stmnts.push_back(statement());
@@ -81,7 +81,12 @@ ASTNode *Parser::lit()
     case COL_LIT:
     case KEY_BOOL_LIT_T:
     case KEY_BOOL_LIT_F:
+    case KEY_PAD_W:
+    case KEY_PAD_H:
         return new ASTLit(currentToken.lexeme);
+    case KEY_PAD_READ:
+        prevToken(); // since padRead already calls nextToken() itself
+        return padRead();
     default:
         exit(EXIT_FAILURE);
     }
@@ -90,7 +95,7 @@ ASTNode *Parser::lit()
 ASTNode *Parser::actualParams()
 {
     nextToken();
-    vector<ASTNode *> nodes;
+    vector<ASTNode *> nodes{};
     while (currentToken.type != PUNCT_CLOSED_PAR)
     {
         nodes.push_back(expr());
@@ -109,6 +114,7 @@ ASTNode *Parser::funCall()
         cout << "Syntax Error: Missing Identifier for the Function" << endl;
         exit(EXIT_FAILURE);
     }
+    // identifier node
     ASTNode *node1 = new ASTId(currentToken.lexeme);
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
@@ -124,4 +130,73 @@ ASTNode *Parser::funCall()
         exit(EXIT_FAILURE);
     }
     return new ASTFunCall(node1, node2);
+}
+
+ASTNode *Parser::subExpr()
+{
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_PAR)
+    {
+        cout << "Syntax Error: Missing '('" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *node = expr();
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_PAR)
+    {
+        cout << "Syntax Error: Missing ')'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return node;
+}
+
+ASTNode *Parser::unary()
+{
+    nextToken();
+    if (currentToken.type != OP_UNARY_NOT)
+    {
+        cout << "Syntax Error: Missing 'not' operator" << endl;
+        exit(EXIT_FAILURE);
+    }
+    else if (currentToken.type != OP_ADD_SUB)
+    {
+        cout << "Syntax Error: Missing '-' operator" << endl;
+        exit(EXIT_FAILURE);
+    }
+    string op = currentToken.lexeme;
+    ASTNode *node = expr();
+    return new ASTUnaryOp(op, node);
+}
+
+ASTNode *Parser::factor()
+{
+    ASTNode *node;
+    token t = peekToken();
+    if (isLit(t))
+        return lit();
+    if (isId(t))
+    {
+        nextToken(); // currentToken equals t right now
+        t = peekToken();
+        if (t.type == PUNCT_OPEN_PAR)
+        {
+            // in this case it is a function call
+            prevToken();
+            return funCall();
+        }
+        else
+        {
+            prevToken();
+            t = peekToken(); // t is back to what it was at the start of the function
+            return new ASTId(t.lexeme);
+        }
+    }
+    if (t.type == PUNCT_OPEN_PAR)
+        return subExpr();
+    if (isUnary(t))
+        return unary();
+    if (t.type == KEY_PAD_RANDI)
+        return padRandI();
+    cout << "Syntax Error: Expected 1 of the following: litera, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
+    exit(EXIT_FAILURE);
 }
