@@ -327,3 +327,17 @@ public:
         }
     }
 };
+
+// TODO: you can actually merge this with VarDec class
+class ASTAssignment : public ASTNode
+{
+public:
+    ASTNode *id;
+    ASTNode *expr;
+    ASTAssignment(ASTNode *id, ASTNode *expr) : id(id), expr(expr) {}
+    virtual ~ASTAssignment()
+    {
+        delete id;
+        delete expr;
+    }
+};

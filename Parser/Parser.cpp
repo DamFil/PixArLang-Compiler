@@ -219,6 +219,11 @@ ASTNode *Parser::term()
         binop->right = f;
         binops.push_back(binop);
     }
+    if (binops.size() == 0)
+    {
+        vector<ASTNode *> factors{f};
+        return new ASTTerm(factors);
+    }
     return new ASTTerm(binops);
 }
 
@@ -237,6 +242,11 @@ ASTNode *Parser::simpleExpr()
         t = term();
         binop->right = t;
         binops.push_back(binop);
+    }
+    if (binops.size() == 0)
+    {
+        vector<ASTNode *> terms{t};
+        return new ASTTerm(terms);
     }
     return new ASTSimpleExpr(binops);
 }
@@ -257,5 +267,65 @@ ASTNode *Parser::expr()
         cond->right = se;
         conds.push_back(cond);
     }
+    if (conds.size() == 0)
+    {
+        vector<ASTNode *> ses{se};
+        return new ASTTerm(ses);
+    }
     return new ASTSimpleExpr(conds);
+}
+
+ASTNode *Parser::assignment()
+{
+    nextToken();
+    if (currentToken.type != IDENTIFIER)
+    {
+        cout << "Syntax Error: Expected an identifer" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *id = new ASTId(currentToken.lexeme);
+    nextToken();
+    if (currentToken.type != OP_ASSIGNMENT)
+    {
+        cout << "Syntax Error: Expected assignment operator '='" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *node = expr();
+    return new ASTAssignment(id, node);
+}
+
+ASTNode *Parser::varDec()
+{
+    nextToken();
+    if (currentToken.type != KEY_VAR_DEC)
+    {
+        cout << "Syntax Error: Missing 'let'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != IDENTIFIER)
+    {
+        cout << "Syntax Error: Need to specify the name of the variable" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *id = new ASTId(currentToken.lexeme);
+    nextToken();
+    if (currentToken.type != PUNCT_COLON)
+    {
+        cout << "Syntax Error: Missing ':'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    nextToken();
+    if (currentToken.type != KEY_T_INT && currentToken.type != KEY_T_FLOAT && currentToken.type != KEY_T_COLOUR && currentToken.type != KEY_T_BOOL)
+    {
+        cout << "Syntax Error: Missing type" << endl;
+    }
+    nextToken();
+    if (currentToken.type != OP_ASSIGNMENT)
+    {
+        cout << "Syntax Error: Missing '='" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *node = expr();
+    return new ASTVarDecl(id, node);
 }
