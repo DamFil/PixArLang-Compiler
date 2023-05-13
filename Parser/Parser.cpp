@@ -568,3 +568,37 @@ ASTNode *Parser::statement()
     }
     return n;
 }
+
+ASTNode *Parser::block()
+{
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_CURL)
+    {
+        cout << "Syntax Error: Missing '{'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    vector<ASTNode *> stmnts{};
+    while (peekToken().type != PUNCT_CLOSED_CURL || peekToken().type != INVALID_TOKEN)
+    {
+        stmnts.push_back(statement());
+    }
+    nextToken();
+    // we do not need to test for closing curly since the while technically tests for that
+    if (currentToken.type != PUNCT_CLOSED_CURL)
+    {
+        cout << "Syntax Error: Missing '}'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return new ASTBlock(stmnts);
+}
+
+ASTNode *Parser::program()
+{
+    vector<ASTNode *> stmnts{};
+    while (peekToken().type != INVALID_TOKEN)
+    {
+        stmnts.push_back(statement());
+    }
+    cout << "PARSING SUCCESSFULL" << endl;
+    return new ASTProgram(stmnts);
+}
