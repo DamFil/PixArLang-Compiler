@@ -96,31 +96,31 @@ const map<string, TokenName> RelToToken{
 class Scanner
 {
 private:
-        string path;
-        vector<token> ScannedTokens;
-        vector<int> States;
-        FileHandler file;
-        int current;
+    string path;
+    vector<token> ScannedTokens;
+    vector<int> States;
+    FileHandler file;
+    int current;
 
-        int popState();
-        bool isAccepting(int state);
-        int getTransitionTableRow(char letter);
+    int popState();
+    bool isAccepting(int state);
+    int getTransitionTableRow(char letter);
 
-        token handleKeyword(string word);
-        token handleNumbers(string word);
-        token handlePunctuation(string word);
-        token handleOperator(string word);
-        token handleRelationalOperator(string word);
-        void getCategoryFromState(int state, string word);
+    token handleKeyword(string word);
+    token handleNumbers(string word);
+    token handlePunctuation(string word);
+    token handleOperator(string word);
+    token handleRelationalOperator(string word);
+    void getCategoryFromState(int state, string word);
 
 public:
-        // constructors
-        Scanner();
-        Scanner(string p);
+    // constructors
+    Scanner();
+    Scanner(string p);
 
-        void displayTokens();
-        void scanInput();
-        token getNextToken();
-        token peekNextToken();
-        token rollBackToken();
+    void displayTokens();
+    void scanInput();
+    token getNextToken();
+    token peekNextToken();
+    token rollBackToken();
 };

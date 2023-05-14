@@ -9,7 +9,7 @@ Scanner::Scanner() : file(FileHandler(path)), current(0)
     States = {};
 }
 
-Scanner::Scanner(string p) : path(p), file(FileHandler(p)), current(0)
+Scanner::Scanner(string p) : path(p), file(FileHandler(p)), current(-1)
 {
     ScannedTokens = {};
     States = {};
@@ -258,17 +258,15 @@ token Scanner::peekNextToken()
 
 token Scanner::getNextToken()
 {
-    token t;
+    ++current;
     try
     {
-        t = ScannedTokens.at(current);
+        return ScannedTokens.at(current);
     }
     catch (std::out_of_range)
     {
         return generated_token("EOF", INVALID_TOKEN);
     }
-    ++current;
-    return t;
 }
 
 token Scanner::rollBackToken()
