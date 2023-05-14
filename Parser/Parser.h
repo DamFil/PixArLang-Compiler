@@ -3,6 +3,7 @@
 #include "../Scanner/TokenStruct.h"
 #include "../Scanner/Scanner.h"
 #include "AST.h"
+using namespace std;
 
 /*TODO:
  * 1) Create functions for each non terminal
@@ -15,15 +16,15 @@ private:
     // wrappers for functions in the parser class
     void nextToken()
     {
-        this->currentToken = this->scan.getNextToken();
+        this->currentToken = this->scan->getNextToken();
     }
     void prevToken()
     {
-        this->currentToken = this->scan.rollBackToken();
+        this->currentToken = this->scan->getNextToken();
     }
     token peekToken()
     {
-        return this->scan.peekNextToken();
+        return this->scan->getNextToken();
     }
 
     bool isLit(token t)
@@ -55,9 +56,11 @@ private:
     }
 
 public:
-    Scanner scan;
+    Scanner *scan;
     token currentToken;
-    Parser() : scan(Scanner()), currentToken(scan.getNextToken()) {}
+    Parser(string path);
+    Parser(Scanner *scanner);
+    ~Parser();
 
     bool isType(token t);
     bool boolLit();
@@ -84,7 +87,7 @@ public:
     ASTNode *whileStmnt();
     ASTNode *funDec();
     ASTNode *statement();
-
+    // groups of statements
     ASTNode *block();
     ASTNode *program();
 };

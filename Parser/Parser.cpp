@@ -1,28 +1,13 @@
 #include "Parser.h"
 
-ASTNode *Parser::program()
+// constructor
+Parser::Parser(string path) : scan(new Scanner(path))
 {
-    ASTNode *node;
-    if (currentToken.type == PUNCT_OPEN_CURL)
-    {
-        node = Parser::block();
-        nextToken();
-        if (currentToken.type != PUNCT_CLOSED_CURL)
-        {
-            cout << "Syntax Error: Missing '}'" << endl;
-            exit(EXIT_FAILURE);
-        }
-        else
-            return node;
-    }
-    vector<ASTNode *> stmnts{};
-    while (currentToken.lexeme != "EOF")
-    {
-        stmnts.push_back(statement());
-        nextToken();
-    }
-    return new ASTProgram(stmnts);
+    this->scan->scanInput();
+    currentToken = scan->getNextToken();
 }
+
+Parser::Parser(Scanner *scanner) : scan(scanner), currentToken(scan->getNextToken()) {}
 
 bool Parser::isType(token t)
 {
