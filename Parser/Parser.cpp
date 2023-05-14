@@ -9,6 +9,12 @@ Parser::Parser(string path) : scan(new Scanner(path))
 
 Parser::Parser(Scanner *scanner) : scan(scanner), currentToken(scan->getNextToken()) {}
 
+Parser::~Parser()
+{
+    delete this->scan;
+    delete this->root;
+}
+
 bool Parser::isType(token t)
 {
     switch (t.type)
@@ -586,4 +592,9 @@ ASTNode *Parser::program()
     }
     cout << "PARSING SUCCESSFULL" << endl;
     return new ASTProgram(stmnts);
+}
+
+void Parser::parse()
+{
+    this->root = program();
 }

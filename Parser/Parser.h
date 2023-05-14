@@ -58,6 +58,7 @@ private:
 public:
     Scanner *scan;
     token currentToken;
+    ASTNode *root{};
     Parser(string path);
     Parser(Scanner *scanner);
     ~Parser();
@@ -90,4 +91,6 @@ public:
     // groups of statements
     ASTNode *block();
     ASTNode *program();
+    // parsing function (wrapper for program())
+    void parse();
 };

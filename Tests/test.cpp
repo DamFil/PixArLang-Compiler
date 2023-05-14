@@ -1,11 +1,15 @@
 #include "Scanner/Scanner.h"
+#include "Parser/Parser.h"
 
-int main() {
+int main()
+{
 
-    Scanner lexer = Scanner("/home/damfil/Uni/CompilerTheory/Assignment/Tests/test.txt");
+    Scanner *lexer = new Scanner("/home/damfil/Uni/CompilerTheory/Assignment/Tests/test.txt");
 
-    lexer.scanInput();
-    lexer.displayTokens();
+    lexer->scanInput();
+    lexer->displayTokens();
 
+    Parser parser = Parser(lexer);
+    parser.parse();
     return 0;
 }
