@@ -1,8 +1,0 @@
-# ninja log v5
-335	377	1683191576645688360	Assignment	de3fbace9d70fdeb
-0	10	1683484552271942508	build.ninja	5bd1bd289589ab9c
-1	335	1683191576605687995	CMakeFiles/Assignment.dir/Tests/test.cpp.o	394fc41bff77bf39
-0	467	1683191544181393358	CMakeFiles/Assignment.dir/Scanner/Scanner.cpp.o	53b4448eacdc161f
-0	363	1683485544550244598	CMakeFiles/Assignment.dir/Tests/test.cpp.o	394fc41bff77bf39
-0	467	1683485544654249064	CMakeFiles/Assignment.dir/Scanner/Scanner.cpp.o	53b4448eacdc161f
-467	520	1683485544706251297	Assignment	de3fbace9d70fdeb

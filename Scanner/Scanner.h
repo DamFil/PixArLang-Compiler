@@ -4,7 +4,7 @@
 #include <fstream>
 #include <map>
 #include "TokenStruct.h"
-#include "Scanner/FileStreamHandler.h"
+#include "FileStreamHandler.h"
 
 using namespace std;
 

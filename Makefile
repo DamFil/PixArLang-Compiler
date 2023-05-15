@@ -1,6 +1,6 @@
 .PHONY: all
 
-all: test2
+all: a.out
 
-test2: Tests/test.cpp Parser/Parser.cpp Parser/Parser.h Scanner/Scanner.cpp Scanner/Scanner.h Scanner/FileStreamHandler.h Scanner/TokenStruct.h
-	g++ Tests/test.cpp Parser/Parser.cpp Scanner/Scanner.cpp -o test2
+a.out: Tests/test.cpp Parser/Parser.cpp Parser/Parser.h Scanner/Scanner.cpp Scanner/Scanner.h Scanner/FileStreamHandler.h Scanner/TokenStruct.h
+	g++ -g Tests/test.cpp Parser/Parser.cpp Scanner/Scanner.cpp

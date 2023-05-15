@@ -24,7 +24,7 @@ private:
     }
     token peekToken()
     {
-        return this->scan->getNextToken();
+        return this->scan->peekNextToken();
     }
 
     bool isLit(token t)

@@ -161,7 +161,7 @@ public:
     ASTNode *expr;
     ASTNode *assignment;
     ASTNode *block;
-    ASTFor(ASTNode *vardec = nullptr, ASTNode *expr, ASTNode *assignment = nullptr, ASTNode *block)
+    ASTFor(ASTNode *vardec = nullptr, ASTNode *expr = nullptr, ASTNode *assignment = nullptr, ASTNode *block = nullptr)
         : vardec(vardec), expr(expr), assignment(assignment), block(block) {}
     virtual ~ASTFor()
     {

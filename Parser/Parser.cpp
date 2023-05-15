@@ -7,7 +7,7 @@ Parser::Parser(string path) : scan(new Scanner(path))
     currentToken = scan->getNextToken();
 }
 
-Parser::Parser(Scanner *scanner) : scan(scanner), currentToken(scan->getNextToken()) {}
+Parser::Parser(Scanner *scanner) : scan(scanner), currentToken(generated_token()) {}
 
 Parser::~Parser()
 {
@@ -522,6 +522,7 @@ ASTNode *Parser::funDec()
 ASTNode *Parser::statement()
 {
     ASTNode *n = nullptr;
+    token t = peekToken();
     switch (peekToken().type)
     {
     case KEY_VAR_DEC:
@@ -586,7 +587,7 @@ ASTNode *Parser::block()
 ASTNode *Parser::program()
 {
     vector<ASTNode *> stmnts{};
-    while (peekToken().type != INVALID_TOKEN)
+    while (peekToken().type != INVALID_TOKEN && peekToken().lexeme != "EOF")
     {
         stmnts.push_back(statement());
     }

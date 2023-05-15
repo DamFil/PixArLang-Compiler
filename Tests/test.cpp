@@ -1,5 +1,5 @@
-#include "Scanner/Scanner.h"
-#include "Parser/Parser.h"
+#include "../Scanner/Scanner.h"
+#include "../Parser/Parser.h"
 
 int main()
 {
