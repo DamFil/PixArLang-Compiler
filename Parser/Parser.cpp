@@ -637,24 +637,20 @@ ASTNode *Parser::statement()
         n = pixelStmnt();
         break;
     case KEY_IF:
-        n = ifStmnt();
-        break;
+        return ifStmnt();
     case KEY_FOR:
-        n = forStmnt();
-        break;
+        return forStmnt();
     case KEY_WHILE:
-        n = whileStmnt();
-        break;
+        return whileStmnt();
     case KEY_RETURN:
         n = rtrnStmnt();
         break;
     default:
         if (peekToken().type == KEY_FUN_DEC)
             return funDec();
-        break;
+
         if (peekToken().type == PUNCT_OPEN_CURL)
             return block();
-        break;
         cout << "Syntax Error: Statements are not valid" << endl;
         exit(EXIT_FAILURE);
     }
@@ -677,7 +673,7 @@ ASTNode *Parser::block()
     }
 
     vector<ASTNode *> stmnts{};
-    while (peekToken().type != PUNCT_CLOSED_CURL || peekToken().type != INVALID_TOKEN)
+    while (peekToken().type != PUNCT_CLOSED_CURL)
     {
         stmnts.push_back(statement());
     }
