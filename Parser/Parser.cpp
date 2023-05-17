@@ -53,7 +53,11 @@ ASTNode *Parser::padRead()
 {
     nextToken();
     if (currentToken.type != KEY_PAD_READ)
+    {
+        cout << "Syntax Error: Missing keyword \"__read\"" << endl;
         exit(EXIT_FAILURE);
+    }
+
     ASTNode *node1 = expr();
     ASTNode *node2 = expr();
     return new ASTReadStmnt(node1, node2);
@@ -63,7 +67,11 @@ ASTNode *Parser::padRandI()
 {
     nextToken();
     if (currentToken.type != KEY_PAD_RANDI)
+    {
+        cout << "Syntax Error: Missing keyword \"__randi\"" << endl;
         exit(EXIT_FAILURE);
+    }
+
     ASTNode *node = expr();
     return new ASTRandiStmnt(node);
 }
@@ -113,19 +121,23 @@ ASTNode *Parser::funCall()
     }
     // identifier node
     ASTNode *node1 = new ASTId(currentToken.lexeme);
+
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
     {
         cout << "Syntax Error: Missing '('" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *node2 = actualParams();
+
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
     {
         cout << "Syntax Error: Missing ')'" << endl;
         exit(EXIT_FAILURE);
     }
+
     return new ASTFunCall(node1, node2);
 }
 
@@ -137,13 +149,16 @@ ASTNode *Parser::subExpr()
         cout << "Syntax Error: Missing '('" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *node = expr();
+
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
     {
         cout << "Syntax Error: Missing ')'" << endl;
         exit(EXIT_FAILURE);
     }
+
     return node;
 }
 
@@ -155,6 +170,7 @@ ASTNode *Parser::unary()
         cout << "Syntax Error: Missing a unary operator (\"-\" or \"not\")" << endl;
         exit(EXIT_FAILURE);
     }
+
     string op = currentToken.lexeme;
     ASTNode *node = expr();
     return new ASTUnaryOp(op, node);
@@ -284,12 +300,14 @@ ASTNode *Parser::assignment()
         exit(EXIT_FAILURE);
     }
     ASTNode *id = new ASTId(currentToken.lexeme);
+
     nextToken();
     if (currentToken.type != OP_ASSIGNMENT)
     {
         cout << "Syntax Error: Expected assignment operator '='" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *node = expr();
     return new ASTAssignment(id, node);
 }
@@ -317,17 +335,21 @@ ASTNode *Parser::varDec()
         cout << "Syntax Error: Missing ':'" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
-    if (currentToken.type != KEY_T_INT && currentToken.type != KEY_T_FLOAT && currentToken.type != KEY_T_COLOUR && currentToken.type != KEY_T_BOOL) //! change to use isType()
+    if (!isType(currentToken))
     {
         cout << "Syntax Error: Missing type" << endl;
+        exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != OP_ASSIGNMENT)
     {
         cout << "Syntax Error: Missing '='" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *node = expr();
     return new ASTVarDecl(id, node);
 }
@@ -340,6 +362,7 @@ ASTNode *Parser::printStmnt()
         cout << "Syntax Error: Missing \"__print\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *node = expr();
     return new ASTPrintStmnt(node);
 }
@@ -352,6 +375,7 @@ ASTNode *Parser::delayStmnt()
         cout << "Syntax Error: Missing \"__delay\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *node = expr();
     return new ASTDelayStmnt(node);
 }
@@ -379,7 +403,6 @@ ASTNode *Parser::pixelStmnt()
     return new ASTPixelStmnt(node1, node2, node3);
 }
 
-//! See if this works
 ASTNode *Parser::rtrnStmnt()
 {
     nextToken();
@@ -388,6 +411,7 @@ ASTNode *Parser::rtrnStmnt()
         cout << "Syntax Error: Missing the return statement (\"return\")" << endl;
         exit(EXIT_FAILURE);
     }
+
     return expr();
 }
 
@@ -399,13 +423,16 @@ ASTNode *Parser::ifStmnt()
         cout << "Syntax Error: Missing \"if\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
     {
         cout << "Syntax Error: Missing '('" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *conditon = expr();
+
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
     {
@@ -413,13 +440,15 @@ ASTNode *Parser::ifStmnt()
         exit(EXIT_FAILURE);
     }
     ASTNode *ifbody = block();
+
     if (peekToken().type != KEY_ELSE)
     {
         return new ASTIfStmn(conditon, ifbody);
     }
+
     nextToken();
-    // no need to check for else as the previous if tests for that
     ASTNode *elsebody = block();
+
     return new ASTIfStmn(conditon, ifbody, elsebody);
 }
 
@@ -428,9 +457,10 @@ ASTNode *Parser::forStmnt()
     nextToken();
     if (currentToken.type != KEY_FOR)
     {
-        cout << "Syntax Error: Missing \"for\"" << endl;
+        cout << "Syntax Error: Missing keyword \"for\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
     {
@@ -449,6 +479,7 @@ ASTNode *Parser::forStmnt()
     if (peekToken().type == IDENTIFIER)
         // we know there is an assignment statement
         assnmt = assignment();
+
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
     {
@@ -465,7 +496,7 @@ ASTNode *Parser::whileStmnt()
     nextToken();
     if (currentToken.type != KEY_WHILE)
     {
-        cout << "Syntax Error: Missing \"while\"" << endl;
+        cout << "Syntax Error: Missing keyword \"while\"" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -520,11 +551,13 @@ ASTNode *Parser::formalParams()
 {
     vector<ASTNode *> parameters{};
     parameters.push_back(formalParam());
+
     while (peekToken().type == PUNCT_COMMA)
     {
         nextToken(); // - consuming the comma
         parameters.push_back(formalParam());
     }
+
     return new ASTFormalParams(parameters);
 }
 
@@ -618,8 +651,10 @@ ASTNode *Parser::statement()
     default:
         if (peekToken().type == KEY_FUN_DEC)
             return funDec();
+        break;
         if (peekToken().type == PUNCT_OPEN_CURL)
             return block();
+        break;
         cout << "Syntax Error: Statements are not valid" << endl;
         exit(EXIT_FAILURE);
     }
@@ -660,11 +695,14 @@ ASTNode *Parser::block()
 ASTNode *Parser::program()
 {
     vector<ASTNode *> stmnts{};
+
     while (peekToken().type != INVALID_TOKEN && peekToken().lexeme != "EOF")
     {
         stmnts.push_back(statement());
     }
+
     cout << "PARSING SUCCESSFULL" << endl;
+
     return new ASTProgram(stmnts);
 }
 
