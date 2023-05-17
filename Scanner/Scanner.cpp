@@ -248,7 +248,7 @@ token Scanner::peekNextToken()
         return ScannedTokens.at(0);
     try
     {
-        return ScannedTokens.at(current);
+        return ScannedTokens.at(current + 1);
     }
     catch (std::out_of_range)
     {

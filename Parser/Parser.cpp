@@ -84,7 +84,7 @@ ASTNode *Parser::lit()
 
 ASTNode *Parser::actualParams()
 {
-    nextToken();
+    // nextToken(); - because this is going to be called by the call to the expr()
     vector<ASTNode *> nodes{};
     while (currentToken.type != PUNCT_CLOSED_PAR)
     {
@@ -143,14 +143,9 @@ ASTNode *Parser::subExpr()
 ASTNode *Parser::unary()
 {
     nextToken();
-    if (currentToken.type != OP_UNARY_NOT)
+    if (currentToken.type != OP_UNARY_NOT && currentToken.type != OP_ADD_SUB)
     {
-        cout << "Syntax Error: Missing 'not' operator" << endl;
-        exit(EXIT_FAILURE);
-    }
-    else if (currentToken.type != OP_ADD_SUB)
-    {
-        cout << "Syntax Error: Missing '-' operator" << endl;
+        cout << "Syntax Error: Missing a unary operator (\"-\" or \"not\")" << endl;
         exit(EXIT_FAILURE);
     }
     string op = currentToken.lexeme;
@@ -160,40 +155,42 @@ ASTNode *Parser::unary()
 
 ASTNode *Parser::factor()
 {
-    ASTNode *node;
-    token t = peekToken();
-    if (isLit(t))
-        return lit();
-    if (isId(t))
+    // TODO: Do a switch statement instead of spamming ifs
+    switch (peekToken().type)
     {
-        nextToken(); // currentToken equals t right now
-        t = peekToken();
-        if (t.type == PUNCT_OPEN_PAR)
+    case INT_LIT:
+    case FLOAT_LIT:
+    case COL_LIT:
+    case KEY_BOOL_LIT_F:
+    case KEY_BOOL_LIT_T:
+    case KEY_PAD_W:
+    case KEY_PAD_H:
+        return lit();
+    case IDENTIFIER:
+        nextToken();
+        if (peekToken().type == PUNCT_OPEN_PAR)
         {
-            // in this case it is a function call
             prevToken();
             return funCall();
         }
         else
-        {
-            prevToken();
-            t = peekToken(); // t is back to what it was at the start of the function
-            return new ASTId(t.lexeme);
-        }
-    }
-    if (t.type == PUNCT_OPEN_PAR)
+            return new ASTId(currentToken.lexeme);
+    case PUNCT_OPEN_PAR:
         return subExpr();
-    if (isUnary(t))
+    case OP_UNARY_NOT:
+    case OP_ADD_SUB:
         return unary();
-    if (t.type == KEY_PAD_RANDI)
+    case KEY_PAD_RANDI:
         return padRandI();
-    cout << "Syntax Error: Expected 1 of the following: litera, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
-    exit(EXIT_FAILURE);
+    default:
+        cout << "Syntax Error: Expected 1 of the following: litera, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 ASTNode *Parser::term()
 {
-    nextToken();
+    // nextToken();
     ASTNode *f;
     ASTBinOp *binop;
     vector<ASTNode *> binops{};
@@ -219,7 +216,7 @@ ASTNode *Parser::term()
 
 ASTNode *Parser::simpleExpr()
 {
-    nextToken();
+    // nextToken();
     ASTNode *t;
     ASTBinOp *binop;
     vector<ASTNode *> binops{};
@@ -243,7 +240,7 @@ ASTNode *Parser::simpleExpr()
 
 ASTNode *Parser::expr()
 {
-    nextToken();
+    // nextToken(); - this will be handled on later in the factor()
     ASTNode *se;
     ASTBinOp *cond;
     vector<ASTNode *> conds{};
@@ -456,6 +453,7 @@ ASTNode *Parser::whileStmnt()
         cout << "Syntax Error: Missing \"while\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
     {
@@ -463,6 +461,7 @@ ASTNode *Parser::whileStmnt()
         exit(EXIT_FAILURE);
     }
     ASTNode *condition = expr();
+
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
     {
@@ -470,7 +469,36 @@ ASTNode *Parser::whileStmnt()
         exit(EXIT_FAILURE);
     }
     ASTNode *b = block();
+
     return new ASTWhile(condition, b);
+}
+
+ASTNode *Parser::formalParam()
+{
+    nextToken();
+    if (currentToken.type != IDENTIFIER)
+    {
+        cout << "Sytnax Error: Expected an Identifer" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *id = new ASTId(currentToken.lexeme);
+
+    nextToken();
+    if (currentToken.type != PUNCT_COLON)
+    {
+        cout << "Syntax Error: Expected ':'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    nextToken();
+    if (!isType(currentToken))
+    {
+        cout << "Syntax Error: Expected a type" << endl;
+        exit(EXIT_FAILURE);
+    }
+    ASTNode *type = new ASTType(currentToken.lexeme);
+
+    return new ASTFormalParam(id, type);
 }
 
 ASTNode *Parser::funDec()

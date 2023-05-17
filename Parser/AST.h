@@ -215,6 +215,29 @@ public:
     }
 };
 
+class ASTFormalParam : public ASTNode
+{
+public:
+    ASTNode *id;
+    ASTNode *type;
+    ASTFormalParam(ASTNode *id, ASTNode *type) : id(id), type(type) {}
+    virtual ~ASTFormalParam() {}
+};
+
+class ASTFormalParams : public ASTNode
+{
+public:
+    vector<ASTNode *> params;
+    ASTFormalParams(vector<ASTNode *> params) : params(params) {}
+    virtual ~ASTFormalParams()
+    {
+        for (int i = 0; i < params.size(); i++)
+        {
+            delete params[i];
+        }
+    }
+};
+
 class ASTPrintStmnt : public ASTNode
 {
 public:

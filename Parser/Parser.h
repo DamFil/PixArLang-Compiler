@@ -49,10 +49,7 @@ private:
     }
     bool isUnary(token t)
     {
-        if (t.type == OP_UNARY_NOT || OP_ADD_SUB)
-            return true;
-        else
-            return false;
+        return t.type == OP_UNARY_NOT || t.type == OP_ADD_SUB ? true : false;
     }
 
 public:
@@ -86,6 +83,7 @@ public:
     ASTNode *ifStmnt();
     ASTNode *forStmnt();
     ASTNode *whileStmnt();
+    ASTNode *formalParam();
     ASTNode *funDec();
     ASTNode *statement();
     // groups of statements
