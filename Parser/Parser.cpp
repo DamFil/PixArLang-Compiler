@@ -201,23 +201,25 @@ ASTNode *Parser::term()
     ASTNode *f;
     ASTBinOp *binop;
     vector<ASTNode *> binops{};
+
     f = factor();
+
     while (peekToken().type == OP_MUL_MUL || peekToken().type == OP_MUL_DIV || peekToken().type == OP_MUL_AND)
     {
         // creates a vector of binary operation nodes where the value of the node is one of the mul operations
         // and the children are the factors on which the operations happen
         nextToken();
-        binop->op = currentToken.lexeme;
-        binop->left = f;
-        f = factor();
-        binop->right = f;
+
+        binop = new ASTBinOp(currentToken.lexeme, f, f = factor());
         binops.push_back(binop);
     }
+
     if (binops.size() == 0)
     {
         vector<ASTNode *> factors{f};
         return new ASTTerm(factors);
     }
+
     return new ASTTerm(binops);
 }
 
@@ -227,21 +229,23 @@ ASTNode *Parser::simpleExpr()
     ASTNode *t;
     ASTBinOp *binop;
     vector<ASTNode *> binops{};
+
     t = term();
+
     while (peekToken().type == OP_ADD_ADD || peekToken().type == OP_ADD_SUB || peekToken().type == OP_ADD_OR)
     {
         nextToken();
-        binop->op = currentToken.lexeme;
-        binop->left = t;
-        t = term();
-        binop->right = t;
+
+        binop = new ASTBinOp(currentToken.lexeme, t, t = term());
         binops.push_back(binop);
     }
+
     if (binops.size() == 0)
     {
         vector<ASTNode *> terms{t};
         return new ASTTerm(terms);
     }
+
     return new ASTSimpleExpr(binops);
 }
 
@@ -251,21 +255,23 @@ ASTNode *Parser::expr()
     ASTNode *se;
     ASTBinOp *cond;
     vector<ASTNode *> conds{};
+
     se = simpleExpr();
+
     while (peekToken().type == OP_REL_EQUAL || peekToken().type == OP_REL_NOT_EQUAL || peekToken().type == OP_REL_GREAT || peekToken().type == OP_REL_LESS || peekToken().type == OP_REL_GREAT_EQ || peekToken().type == OP_REL_LESS_EQ)
     {
-        nextToken();
-        cond->op = currentToken.lexeme;
-        cond->left = se;
-        se = factor();
-        cond->right = se;
+        nextToken(); // - consuming the relational operator
+
+        cond = new ASTBinOp(currentToken.lexeme, se, se = factor());
         conds.push_back(cond);
     }
+
     if (conds.size() == 0)
     {
         vector<ASTNode *> ses{se};
         return new ASTTerm(ses);
     }
+
     return new ASTSimpleExpr(conds);
 }
 
@@ -296,6 +302,7 @@ ASTNode *Parser::varDec()
         cout << "Syntax Error: Missing 'let'" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != IDENTIFIER)
     {
@@ -303,6 +310,7 @@ ASTNode *Parser::varDec()
         exit(EXIT_FAILURE);
     }
     ASTNode *id = new ASTId(currentToken.lexeme);
+
     nextToken();
     if (currentToken.type != PUNCT_COLON)
     {
@@ -310,7 +318,7 @@ ASTNode *Parser::varDec()
         exit(EXIT_FAILURE);
     }
     nextToken();
-    if (currentToken.type != KEY_T_INT && currentToken.type != KEY_T_FLOAT && currentToken.type != KEY_T_COLOUR && currentToken.type != KEY_T_BOOL)
+    if (currentToken.type != KEY_T_INT && currentToken.type != KEY_T_FLOAT && currentToken.type != KEY_T_COLOUR && currentToken.type != KEY_T_BOOL) //! change to use isType()
     {
         cout << "Syntax Error: Missing type" << endl;
     }
@@ -581,23 +589,32 @@ ASTNode *Parser::statement()
     {
     case KEY_VAR_DEC:
         n = varDec();
+        break;
     case IDENTIFIER:
         n = assignment();
+        break;
     case KEY_PRINT:
         n = printStmnt();
+        break;
     case KEY_DELAY:
         n = delayStmnt();
+        break;
     case KEY_PIX:
     case KEY_PIX_R:
         n = pixelStmnt();
+        break;
     case KEY_IF:
         n = ifStmnt();
+        break;
     case KEY_FOR:
         n = forStmnt();
+        break;
     case KEY_WHILE:
         n = whileStmnt();
+        break;
     case KEY_RETURN:
         n = rtrnStmnt();
+        break;
     default:
         if (peekToken().type == KEY_FUN_DEC)
             return funDec();

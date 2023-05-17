@@ -34,10 +34,10 @@ public:
 class ASTBinOp : public ASTNode
 {
 public:
+    string op;
     ASTNode *left;
     ASTNode *right;
-    string op;
-    ASTBinOp(ASTNode *l, ASTNode *r, string op) : left(l), right(r), op(op) {}
+    ASTBinOp(string op, ASTNode *l, ASTNode *r) : op(op), left(l), right(r) {}
     virtual ~ASTBinOp()
     {
         delete left;
