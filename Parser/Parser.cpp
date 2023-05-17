@@ -1,5 +1,12 @@
 #include "Parser.h"
 
+/*
+*Rules For Determining when to call nextToken();
+1) nextToken should be called at the beginning of every function
+2) Same applies for peekToken
+3) The caller must not call nextToken() before calling the function
+*/
+
 // constructor
 Parser::Parser(string path) : scan(new Scanner(path))
 {
@@ -501,6 +508,18 @@ ASTNode *Parser::formalParam()
     return new ASTFormalParam(id, type);
 }
 
+ASTNode *Parser::formalParams()
+{
+    vector<ASTNode *> parameters{};
+    parameters.push_back(formalParam());
+    while (peekToken().type == PUNCT_COMMA)
+    {
+        nextToken(); // - consuming the comma
+        parameters.push_back(formalParam());
+    }
+    return new ASTFormalParams(parameters);
+}
+
 ASTNode *Parser::funDec()
 {
     nextToken();
@@ -509,12 +528,14 @@ ASTNode *Parser::funDec()
         cout << "Syntax Error: Missing \"fun\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != IDENTIFIER)
     {
         cout << "Syntax Error: Missing identifier" << endl;
         exit(EXIT_FAILURE);
     }
+
     ASTNode *id = new ASTId(currentToken.lexeme);
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
@@ -522,28 +543,33 @@ ASTNode *Parser::funDec()
         cout << "Syntax Error: Missing '('" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *params = actualParams();
+
+    ASTNode *params = formalParams();
+
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
     {
         cout << "Syntax Error: Missing ')'" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != OP_RET_TYPE)
     {
         cout << "Syntax Error: Missing \"->\"" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (!isType(currentToken))
     {
         cout << "Syntax Error: Missing type" << endl;
         exit(EXIT_FAILURE);
     }
-    //! this is possible we might need to refactor some of the code
     ASTType *t = new ASTType(currentToken.lexeme);
+
     ASTNode *b = block();
+
     return new ASTFunDec(id, params, t, b);
 }
 
@@ -597,18 +623,20 @@ ASTNode *Parser::block()
         cout << "Syntax Error: Missing '{'" << endl;
         exit(EXIT_FAILURE);
     }
+
     vector<ASTNode *> stmnts{};
     while (peekToken().type != PUNCT_CLOSED_CURL || peekToken().type != INVALID_TOKEN)
     {
         stmnts.push_back(statement());
     }
+
     nextToken();
-    // we do not need to test for closing curly since the while technically tests for that
     if (currentToken.type != PUNCT_CLOSED_CURL)
     {
         cout << "Syntax Error: Missing '}'" << endl;
         exit(EXIT_FAILURE);
     }
+
     return new ASTBlock(stmnts);
 }
 

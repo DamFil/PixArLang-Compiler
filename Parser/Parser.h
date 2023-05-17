@@ -84,6 +84,7 @@ public:
     ASTNode *forStmnt();
     ASTNode *whileStmnt();
     ASTNode *formalParam();
+    ASTNode *formalParams();
     ASTNode *funDec();
     ASTNode *statement();
     // groups of statements
