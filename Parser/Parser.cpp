@@ -523,7 +523,21 @@ ASTNode *Parser::forStmnt()
         // we know there is a variable declaraion in this case
         vd = varDec();
 
+    nextToken();
+    if (currentToken.type != PUNCT_SEMICOLON)
+    {
+        cout << "Syntax Error: Missing ';'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
     ASTNode *condition = expr();
+
+    nextToken();
+    if (currentToken.type != PUNCT_SEMICOLON)
+    {
+        cout << "Syntax Error: Missing ';'" << endl;
+        exit(EXIT_FAILURE);
+    }
 
     ASTNode *assnmt = nullptr;
     if (peekToken().type == IDENTIFIER)
