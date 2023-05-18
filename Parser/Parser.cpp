@@ -391,15 +391,65 @@ ASTNode *Parser::pixelStmnt()
             exit(EXIT_FAILURE);
         }
         ASTNode *node1 = expr();
+
+        nextToken();
+        if (currentToken.type != PUNCT_COMMA)
+        {
+            cout << "Syntax Error: Missing ','" << endl;
+            exit(EXIT_FAILURE);
+        }
+
         ASTNode *node2 = expr();
+
+        nextToken();
+        if (currentToken.type != PUNCT_COMMA)
+        {
+            cout << "Syntax Error: Missing ','" << endl;
+            exit(EXIT_FAILURE);
+        }
+
         ASTNode *node3 = expr();
+
+        nextToken();
+        if (currentToken.type != PUNCT_COMMA)
+        {
+            cout << "Syntax Error: Missing ','" << endl;
+            exit(EXIT_FAILURE);
+        }
+
         ASTNode *node4 = expr();
+
+        nextToken();
+        if (currentToken.type != PUNCT_COMMA)
+        {
+            cout << "Syntax Error: Missing ','" << endl;
+            exit(EXIT_FAILURE);
+        }
+
         ASTNode *node5 = expr();
+
         return new ASTPixelrStmnt(node1, node2, node3, node4, node5);
     }
     ASTNode *node1 = expr();
+
+    nextToken();
+    if (currentToken.type != PUNCT_COMMA)
+    {
+        cout << "Syntax Error: Missing ','" << endl;
+        exit(EXIT_FAILURE);
+    }
+
     ASTNode *node2 = expr();
+
+    nextToken();
+    if (currentToken.type != PUNCT_COMMA)
+    {
+        cout << "Syntax Error: Missing ','" << endl;
+        exit(EXIT_FAILURE);
+    }
+
     ASTNode *node3 = expr();
+
     return new ASTPixelStmnt(node1, node2, node3);
 }
 
