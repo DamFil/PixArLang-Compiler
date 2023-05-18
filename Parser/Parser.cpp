@@ -692,7 +692,7 @@ ASTNode *Parser::program()
 {
     vector<ASTNode *> stmnts{};
 
-    while (peekToken().type != INVALID_TOKEN && peekToken().lexeme != "EOF")
+    while (peekToken().type != INVALID_TOKEN && peekToken().lexeme != "END")
     {
         stmnts.push_back(statement());
     }
