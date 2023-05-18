@@ -17,7 +17,7 @@ private:
 public:
     FileHandler() = delete;
 
-    FileHandler(string p) : path(p), inputpos(0)
+    FileHandler(string p) : path(p), inputpos(-1) //-1 because calling nextChar sets it to 0
     {
         file.open(path, ifstream::in);
 
@@ -30,7 +30,7 @@ public:
             buffer = {(std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>())};
     }
 
-    char NextChar()
+    int nextChar()
     {
         ++inputpos;
         try
@@ -43,7 +43,19 @@ public:
         }
     }
 
-    int RollBack()
+    int peekChar()
+    {
+        try
+        {
+            return buffer.at(inputpos + 1);
+        }
+        catch (std::out_of_range)
+        {
+            return 'EOF';
+        }
+    }
+
+    int rollBack()
     {
         if (inputpos == 0 || inputpos == this->buffer.size())
             return -1;
