@@ -6,47 +6,58 @@
 
 using namespace std;
 
-class FileHandler {
-    private:
-        string path;
-        fstream file;
-        string buffer;
-        int inputpos;
-        
-    public:
-        FileHandler() = delete;
+class FileHandler
+{
+private:
+    string path;
+    fstream file;
+    string buffer;
+    int inputpos;
 
-        FileHandler(string p) : path(p) , inputpos(0) {
-            file.open(path, ifstream::in);
+public:
+    FileHandler() = delete;
 
-            if (!file.is_open()) {
-                cout << "Error: Cannot open file at: " + path << endl;
-                buffer = "";
-            }
-            else 
-                buffer = { (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) };
+    FileHandler(string p) : path(p), inputpos(0)
+    {
+        file.open(path, ifstream::in);
+
+        if (!file.is_open())
+        {
+            cout << "Error: Cannot open file at: " + path << endl;
+            buffer = "";
         }
+        else
+            buffer = {(std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>())};
+    }
 
-        char NextChar() {
-            char c = 'EOF';
-            if (inputpos < buffer.size()) {
-                c = buffer.at(inputpos);
-                ++inputpos;
-            }
-            return c;
+    char NextChar()
+    {
+        ++inputpos;
+        try
+        {
+            return buffer.at(inputpos);
         }
+        catch (std::out_of_range)
+        {
+            return 'EOF';
+        }
+    }
 
-        int RollBack() {
-            if (inputpos == 0 || inputpos == 115)
-                return -1;
-            --inputpos; return 0;
-        }
+    int RollBack()
+    {
+        if (inputpos == 0 || inputpos == this->buffer.size())
+            return -1;
+        --inputpos;
+        return 0;
+    }
 
-        int getSizeOfProgram() {
-            return this->buffer.length();
-        }
+    int getSizeOfProgram()
+    {
+        return this->buffer.length();
+    }
 
-        int getCurrPos() {
-            return this->inputpos;
-        }
+    int getCurrPos()
+    {
+        return this->inputpos;
+    }
 };
