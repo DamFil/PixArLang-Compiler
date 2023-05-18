@@ -205,7 +205,7 @@ void Scanner::getCategoryFromState(int state, string word)
 
 void Scanner::scanInput()
 {
-    while (this->file.getCurrPos() < this->file.getSizeOfProgram())
+    while (this->file.peekChar() != 'EOF')
     {
         // initializing
         int state = 0;
@@ -216,7 +216,7 @@ void Scanner::scanInput()
 
         while (state != -1)
         {
-            char c = this->file.NextChar();
+            char c = this->file.nextChar();
             word += c;
             if (isAccepting(state))
             {
@@ -234,7 +234,7 @@ void Scanner::scanInput()
             if (state != -2)
             {
                 word.pop_back();
-                this->file.RollBack();
+                this->file.rollBack();
             }
         }
 
@@ -252,7 +252,7 @@ token Scanner::peekNextToken()
     }
     catch (std::out_of_range)
     {
-        return ScannedTokens.at(ScannedTokens.size() - 1);
+        return token("END", INVALID_TOKEN);
     }
 }
 
