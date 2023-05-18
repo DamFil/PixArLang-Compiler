@@ -20,7 +20,7 @@ private:
     }
     void prevToken()
     {
-        this->currentToken = this->scan->getNextToken();
+        this->currentToken = this->scan->rollBackToken();
     }
     token peekToken()
     {
