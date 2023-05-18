@@ -1,0 +1,5 @@
+//Single-line comment
+//Same functioanlity as function above but using less code
+fun XGreaterY_2(x:int, y:int) -> bool {
+    return x > y;
+}
