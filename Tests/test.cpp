@@ -4,7 +4,7 @@
 int main()
 {
 
-    Scanner *lexer = new Scanner("/home/damfil/Uni/CompilerTheory/Assignment/Tests/test4.txt");
+    Scanner *lexer = new Scanner("/home/damfil/Uni/CompilerTheory/Assignment/Tests/test5.txt");
 
     lexer->scanInput();
     lexer->displayTokens();
