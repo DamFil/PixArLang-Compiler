@@ -4,10 +4,10 @@ fun AverageOfTwo(x: int, y : int) -> float {
     return t1 ;
 }
 
-/* Same functionality as function above but using less code.
- * Note the use of brackets in the expression following the
- * return statement. Allocates space for 2 variables.
- */
+/*Same functionality as function above but using less code.
+* Note the use of brackets in the expression following the
+* return statement. Allocates space for 2 variables.
+*/
 fun AverageOfTwo2( x : int, y : int ) -> float {
 return (x + y) / 2;
 }
