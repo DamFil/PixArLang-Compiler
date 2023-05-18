@@ -80,9 +80,10 @@ int Scanner::getTransitionTableRow(char c)
     case '.':
         return 13;
     case '\n':
+        return 14;
     case ' ':
     case '\t':
-        return 14;
+        return 16;
     }
 }
 
