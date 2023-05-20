@@ -23,6 +23,52 @@ public:
     virtual ~ASTLit() {}
 };
 
+class ASTIntLit : public ASTNode
+{
+public:
+    string value;
+    ASTIntLit(string v) : value(v) {}
+    virtual ~ASTIntLit() {}
+};
+
+class ASTFloatLit : public ASTNode
+{
+public:
+    string value;
+    ASTFloatLit(string v) : value(v) {}
+    virtual ~ASTFloatLit() {}
+};
+
+class ASTColourLit : public ASTNode
+{
+public:
+    string value;
+    ASTColourLit(string v) : value(v) {}
+    virtual ~ASTColourLit() {}
+};
+
+class ASTBoolLit : public ASTNode
+{
+public:
+    bool value;
+    ASTBoolLit(string boolStr)
+    {
+        if (boolStr == "true")
+            value = true;
+        else
+            value = false;
+    }
+    virtual ~ASTBoolLit() {}
+};
+
+class ASTPadLit : public ASTNode
+{
+public:
+    string padl;
+    ASTPadLit(string pl) : padl(pl) {}
+    virtual ~ASTPadLit() {}
+};
+
 class ASTType : public ASTNode
 {
 public:

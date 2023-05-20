@@ -7,6 +7,14 @@
 3) The caller must not call nextToken() before calling the function
 */
 
+/*
+TODO - Remove the expr, simpleExpr, term nodes and directly return the reuslt of the factor
+TODO - Add override to all of the destructors
+TODO - Add an accept function for the XMLvisitor class for each of the AST nodes
+*TODO - Add sepererate ASTNodes for integer, float, colour literals and for pad_h and pad_w
+     - Subsequently change the factor function to reflect this
+*/
+
 // constructor
 Parser::Parser(string path) : scan(new Scanner(path))
 {
@@ -30,19 +38,6 @@ bool Parser::isType(token t)
     case KEY_T_BOOL:
     case KEY_T_FLOAT:
     case KEY_T_COLOUR:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool Parser::boolLit()
-{
-    nextToken();
-    switch (currentToken.type)
-    {
-    case KEY_BOOL_LIT_T:
-    case KEY_BOOL_LIT_F:
         return true;
     default:
         return false;
@@ -76,6 +71,7 @@ ASTNode *Parser::padRandI()
     return new ASTRandiStmnt(node);
 }
 
+//! WE GOTTA REMOVE THIS
 ASTNode *Parser::lit()
 {
     nextToken();
@@ -95,6 +91,61 @@ ASTNode *Parser::lit()
     default:
         exit(EXIT_FAILURE);
     }
+}
+
+ASTNode *Parser::intLit()
+{
+    nextToken();
+    if (currentToken.type != INT_LIT)
+    {
+        cout << "Syntax Error: Missing an integer literal" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return new ASTIntLit(currentToken.lexeme);
+}
+
+ASTNode *Parser::floatLit()
+{
+    nextToken();
+    if (currentToken.type != FLOAT_LIT)
+    {
+        cout << "Syntax Error: Missing a float literal" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return new ASTFloatLit(currentToken.lexeme);
+}
+
+ASTNode *Parser::colLit()
+{
+    nextToken();
+    if (currentToken.type != COL_LIT)
+    {
+        cout << "Syntax Error: Missing a float literal" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return new ASTColourLit(currentToken.lexeme);
+}
+
+ASTNode *Parser::boolLit()
+{
+    nextToken();
+    if (currentToken.type != KEY_BOOL_LIT_F && currentToken.type != KEY_BOOL_LIT_T)
+    {
+        cout << "Syntax Error: Missing a Boolean Literal" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return new ASTBoolLit(currentToken.lexeme);
+}
+
+ASTNode *Parser::padLit()
+{
+    nextToken();
+    if (currentToken.type != KEY_PAD_H && currentToken.type != KEY_PAD_W)
+    {
+        cout << "Syntax Error: Missing a Pad Literal (__height or __width)" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return new ASTPadLit(currentToken.lexeme);
 }
 
 ASTNode *Parser::actualParams()
@@ -182,13 +233,17 @@ ASTNode *Parser::factor()
     switch (peekToken().type)
     {
     case INT_LIT:
+        return intLit();
     case FLOAT_LIT:
+        return floatLit();
     case COL_LIT:
+        return colLit();
     case KEY_BOOL_LIT_F:
     case KEY_BOOL_LIT_T:
+        return boolLit();
     case KEY_PAD_W:
     case KEY_PAD_H:
-        return lit();
+        return padLit();
     case IDENTIFIER:
         nextToken();
         if (peekToken().type == PUNCT_OPEN_PAR)

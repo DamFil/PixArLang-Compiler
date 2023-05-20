@@ -61,10 +61,14 @@ public:
     ~Parser();
 
     bool isType(token t);
-    bool boolLit();
+    ASTNode *lit();
+    ASTNode *intLit();
+    ASTNode *floatLit();
+    ASTNode *colLit();
+    ASTNode *boolLit();
+    ASTNode *padLit();
     ASTNode *padRead();
     ASTNode *padRandI();
-    ASTNode *lit();
     ASTNode *actualParams();
     ASTNode *funCall();
     ASTNode *subExpr();
