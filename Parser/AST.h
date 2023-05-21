@@ -1,5 +1,6 @@
 #pragma once
 #include "../Scanner/TokenStruct.h"
+#include "../XMLVisitor/XMLVisitor.h"
 
 class ASTNode
 {
@@ -12,15 +13,21 @@ class ASTId : public ASTNode
 public:
     string name;
     ASTId(string n) : name(n) {}
+    virtual ~ASTId() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
-// I do not need any other literals since the token value is all strings
+//! REMOVE THIS
 class ASTLit : public ASTNode
 {
 public:
     string value;
     ASTLit(string v) : value(v) {}
-    virtual ~ASTLit() {}
+    virtual ~ASTLit() override {}
 };
 
 class ASTIntLit : public ASTNode
@@ -28,7 +35,12 @@ class ASTIntLit : public ASTNode
 public:
     string value;
     ASTIntLit(string v) : value(v) {}
-    virtual ~ASTIntLit() {}
+    virtual ~ASTIntLit() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTFloatLit : public ASTNode
@@ -36,7 +48,12 @@ class ASTFloatLit : public ASTNode
 public:
     string value;
     ASTFloatLit(string v) : value(v) {}
-    virtual ~ASTFloatLit() {}
+    virtual ~ASTFloatLit() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTColourLit : public ASTNode
@@ -44,7 +61,12 @@ class ASTColourLit : public ASTNode
 public:
     string value;
     ASTColourLit(string v) : value(v) {}
-    virtual ~ASTColourLit() {}
+    virtual ~ASTColourLit() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTBoolLit : public ASTNode
@@ -58,7 +80,12 @@ public:
         else
             value = false;
     }
-    virtual ~ASTBoolLit() {}
+    virtual ~ASTBoolLit() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTPadLit : public ASTNode
@@ -66,7 +93,12 @@ class ASTPadLit : public ASTNode
 public:
     string padl;
     ASTPadLit(string pl) : padl(pl) {}
-    virtual ~ASTPadLit() {}
+    virtual ~ASTPadLit() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTType : public ASTNode
@@ -74,7 +106,12 @@ class ASTType : public ASTNode
 public:
     string type;
     ASTType(string type) : type(type) {}
-    virtual ~ASTType() {}
+    virtual ~ASTType() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTBinOp : public ASTNode
@@ -84,10 +121,15 @@ public:
     ASTNode *left;
     ASTNode *right;
     ASTBinOp(string op, ASTNode *l, ASTNode *r) : op(op), left(l), right(r) {}
-    virtual ~ASTBinOp()
+    virtual ~ASTBinOp() override
     {
         delete left;
         delete right;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -97,9 +139,14 @@ public:
     string op;
     ASTNode *expr;
     ASTUnaryOp(string op, ASTNode *expr) : op(op), expr(expr) {}
-    virtual ~ASTUnaryOp()
+    virtual ~ASTUnaryOp() override
     {
         delete expr;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -108,12 +155,17 @@ class ASTProgram : public ASTNode
 public:
     vector<ASTNode *> stmnts;
     ASTProgram(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
-    virtual ~ASTProgram()
+    virtual ~ASTProgram() override
     {
         for (int i = 0; i < stmnts.size(); i++)
         {
             delete stmnts[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -122,12 +174,17 @@ class ASTBlock : public ASTNode
 public:
     vector<ASTNode *> stmnts;
     ASTBlock(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
-    virtual ~ASTBlock()
+    virtual ~ASTBlock() override
     {
         for (int i = 0; i < stmnts.size(); i++)
         {
             delete stmnts[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -137,10 +194,15 @@ public:
     ASTNode *id;
     ASTNode *init;
     ASTVarDecl(ASTNode *id, ASTNode *init) : id(id), init(init) {}
-    virtual ~ASTVarDecl()
+    virtual ~ASTVarDecl() override
     {
         delete id;
         delete init;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -151,11 +213,16 @@ public:
     ASTNode *ifbody;   // same as ASTBlock
     ASTNode *elsebody; // same as ASTBlock
     ASTIfStmn(ASTNode *cond, ASTNode *ifbody, ASTNode *elsebody = nullptr) : cond(cond), ifbody(ifbody), elsebody(elsebody) {}
-    virtual ~ASTIfStmn()
+    virtual ~ASTIfStmn() override
     {
         delete cond;
         delete ifbody;
         delete elsebody;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -164,12 +231,17 @@ class ASTIfBody : public ASTNode
 public:
     vector<ASTNode *> stmnts;
     ASTIfBody(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
-    virtual ~ASTIfBody()
+    virtual ~ASTIfBody() override
     {
         for (int i = 0; i < stmnts.size(); i++)
         {
             delete stmnts[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -178,12 +250,17 @@ class ASTElseBody : public ASTNode
 public:
     vector<ASTNode *> stmnts;
     ASTElseBody(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
-    virtual ~ASTElseBody()
+    virtual ~ASTElseBody() override
     {
         for (int i = 0; i < stmnts.size(); i++)
         {
             delete stmnts[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -193,10 +270,15 @@ public:
     ASTNode *condtn;
     ASTNode *stmnts;
     ASTWhile(ASTNode *condtn, ASTNode *stmnts) : condtn(condtn), stmnts(stmnts) {}
-    virtual ~ASTWhile()
+    virtual ~ASTWhile() override
     {
         delete condtn;
         delete stmnts;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -209,12 +291,17 @@ public:
     ASTNode *block;
     ASTFor(ASTNode *vardec = nullptr, ASTNode *expr = nullptr, ASTNode *assignment = nullptr, ASTNode *block = nullptr)
         : vardec(vardec), expr(expr), assignment(assignment), block(block) {}
-    virtual ~ASTFor()
+    virtual ~ASTFor() override
     {
         delete vardec;
         delete expr;
         delete assignment;
         delete block;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -226,11 +313,16 @@ public:
     ASTNode *rtrntype;
     ASTNode *block;
     ASTFunDec(ASTNode *id, ASTNode *params, ASTNode *rtrntype, ASTNode *block) : id(id), params(params), rtrntype(rtrntype), block(block) {}
-    virtual ~ASTFunDec()
+    virtual ~ASTFunDec() override
     {
         delete id;
         delete params;
         delete rtrntype;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -240,10 +332,15 @@ public:
     ASTNode *id;
     ASTNode *params;
     ASTFunCall(ASTNode *id, ASTNode *params) : id(id), params(params) {}
-    virtual ~ASTFunCall()
+    virtual ~ASTFunCall() override
     {
         delete id;
         delete params;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -252,12 +349,17 @@ class ASTParams : public ASTNode
 public:
     vector<ASTNode *> expressions;
     ASTParams(vector<ASTNode *> expressions) : expressions(expressions) {}
-    virtual ~ASTParams()
+    virtual ~ASTParams() override
     {
         for (int i = 0; i < expressions.size(); i++)
         {
             delete expressions[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -267,7 +369,12 @@ public:
     ASTNode *id;
     ASTNode *type;
     ASTFormalParam(ASTNode *id, ASTNode *type) : id(id), type(type) {}
-    virtual ~ASTFormalParam() {}
+    virtual ~ASTFormalParam() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTFormalParams : public ASTNode
@@ -275,12 +382,17 @@ class ASTFormalParams : public ASTNode
 public:
     vector<ASTNode *> params;
     ASTFormalParams(vector<ASTNode *> params) : params(params) {}
-    virtual ~ASTFormalParams()
+    virtual ~ASTFormalParams() override
     {
         for (int i = 0; i < params.size(); i++)
         {
             delete params[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -289,9 +401,14 @@ class ASTPrintStmnt : public ASTNode
 public:
     ASTNode *expression;
     ASTPrintStmnt(ASTNode *expression) : expression(expression) {}
-    virtual ~ASTPrintStmnt()
+    virtual ~ASTPrintStmnt() override
     {
         delete expression;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -300,9 +417,14 @@ class ASTRandiStmnt : public ASTNode
 public:
     ASTNode *expression;
     ASTRandiStmnt(ASTNode *expression) : expression(expression) {}
-    virtual ~ASTRandiStmnt()
+    virtual ~ASTRandiStmnt() override
     {
         delete expression;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -313,11 +435,16 @@ public:
     ASTNode *amount;
     ASTNode *col;
     ASTPixelStmnt(ASTNode *pixel, ASTNode *amount, ASTNode *col) : pixel(pixel), amount(amount), col(col) {}
-    virtual ~ASTPixelStmnt()
+    virtual ~ASTPixelStmnt() override
     {
         delete pixel;
         delete amount;
         delete col;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -331,13 +458,18 @@ public:
     ASTNode *expr4;
     ASTNode *expr5;
     ASTPixelrStmnt(ASTNode *expr1, ASTNode *expr2, ASTNode *expr3, ASTNode *expr4, ASTNode *expr5) : expr1(expr1), expr2(expr2), expr3(expr3), expr4(expr4), expr5(expr5) {}
-    virtual ~ASTPixelrStmnt()
+    virtual ~ASTPixelrStmnt() override
     {
         delete expr1;
         delete expr2;
         delete expr3;
         delete expr4;
         delete expr5;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -346,9 +478,14 @@ class ASTDelayStmnt : public ASTNode
 public:
     ASTNode *expression;
     ASTDelayStmnt(ASTNode *expression) : expression(expression) {}
-    virtual ~ASTDelayStmnt()
+    virtual ~ASTDelayStmnt() override
     {
         delete expression;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -358,10 +495,15 @@ public:
     ASTNode *expr1;
     ASTNode *expr2;
     ASTReadStmnt(ASTNode *expr1, ASTNode *expr2) : expr1(expr1), expr2(expr2) {}
-    virtual ~ASTReadStmnt()
+    virtual ~ASTReadStmnt() override
     {
         delete expr1;
         delete expr2;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -372,12 +514,17 @@ class ASTTerm : public ASTNode
 public:
     vector<ASTNode *> factors;
     ASTTerm(vector<ASTNode *> factors) : factors(factors) {}
-    virtual ~ASTTerm()
+    virtual ~ASTTerm() override
     {
         for (int i = 0; i < factors.size(); i++)
         {
             delete factors[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -386,12 +533,17 @@ class ASTSimpleExpr : public ASTNode
 public:
     vector<ASTNode *> terms;
     ASTSimpleExpr(vector<ASTNode *> terms) : terms(terms) {}
-    virtual ~ASTSimpleExpr()
+    virtual ~ASTSimpleExpr() override
     {
         for (int i = 0; i < terms.size(); i++)
         {
             delete terms[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -400,12 +552,17 @@ class ASTExpr : public ASTNode
 public:
     vector<ASTNode *> simpleExprs;
     ASTExpr(vector<ASTNode *> simpleExprs) : simpleExprs(simpleExprs) {}
-    virtual ~ASTExpr()
+    virtual ~ASTExpr() override
     {
         for (int i = 0; i < simpleExprs.size(); i++)
         {
             delete simpleExprs[i];
         }
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };
 
@@ -416,9 +573,14 @@ public:
     ASTNode *id;
     ASTNode *expr;
     ASTAssignment(ASTNode *id, ASTNode *expr) : id(id), expr(expr) {}
-    virtual ~ASTAssignment()
+    virtual ~ASTAssignment() override
     {
         delete id;
         delete expr;
+    }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
     }
 };

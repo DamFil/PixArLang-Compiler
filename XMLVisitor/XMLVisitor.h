@@ -6,13 +6,15 @@
 class XMLVisitor
 {
 public:
-    XMLVisitor();
+    XMLVisitor() {}
     // literals
     void visit(ASTIntLit *);
     void visit(ASTFloatLit *);
     void visit(ASTColourLit *);
     void visit(ASTBoolLit *);
     void visit(ASTPadLit *);
+    void visit(ASTId *);
+    void visit(ASTType *);
 
     void visit(ASTVarDecl *);
     void visit(ASTAssignment *);
