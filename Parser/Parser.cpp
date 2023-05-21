@@ -71,28 +71,6 @@ ASTNode *Parser::padRandI()
     return new ASTRandiStmnt(node);
 }
 
-//! WE GOTTA REMOVE THIS
-ASTNode *Parser::lit()
-{
-    nextToken();
-    switch (currentToken.type)
-    {
-    case INT_LIT:
-    case FLOAT_LIT:
-    case COL_LIT:
-    case KEY_BOOL_LIT_T:
-    case KEY_BOOL_LIT_F:
-    case KEY_PAD_W:
-    case KEY_PAD_H:
-        return new ASTLit(currentToken.lexeme);
-    case KEY_PAD_READ:
-        prevToken(); // since padRead already calls nextToken() itself
-        return padRead();
-    default:
-        exit(EXIT_FAILURE);
-    }
-}
-
 ASTNode *Parser::intLit()
 {
     nextToken();
