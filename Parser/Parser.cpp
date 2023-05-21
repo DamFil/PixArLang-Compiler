@@ -9,8 +9,9 @@
 
 /*
 TODO - Remove the expr, simpleExpr, term nodes and directly return the reuslt of the factor
-TODO - Add override to all of the destructors
-TODO - Add an accept function for the XMLvisitor class for each of the AST nodes
+TODO - Add typefield to id class
+*TODO - Add override to all of the destructors
+*TODO - Add an accept function for the XMLvisitor class for each of the AST nodes
 *TODO - Add sepererate ASTNodes for integer, float, colour literals and for pad_h and pad_w
      - Subsequently change the factor function to reflect this
 */
@@ -375,6 +376,7 @@ ASTNode *Parser::varDec()
         cout << "Syntax Error: Missing type" << endl;
         exit(EXIT_FAILURE);
     }
+    string t = currentToken.lexeme;
 
     nextToken();
     if (currentToken.type != OP_ASSIGNMENT)
@@ -384,7 +386,7 @@ ASTNode *Parser::varDec()
     }
 
     ASTNode *node = expr();
-    return new ASTVarDecl(id, node);
+    return new ASTVarDecl(id, node, t);
 }
 
 ASTNode *Parser::printStmnt()

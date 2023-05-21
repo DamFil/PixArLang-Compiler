@@ -6,6 +6,8 @@ class ASTNode
 {
 public:
     virtual ~ASTNode() {}
+
+    virtual void accept(XMLVisitor *visitor) = 0;
 };
 
 class ASTId : public ASTNode
@@ -193,7 +195,8 @@ class ASTVarDecl : public ASTNode
 public:
     ASTNode *id;
     ASTNode *init;
-    ASTVarDecl(ASTNode *id, ASTNode *init) : id(id), init(init) {}
+    string type;
+    ASTVarDecl(ASTNode *id, ASTNode *init, string type) : id(id), init(init), type(type) {}
     virtual ~ASTVarDecl() override
     {
         delete id;

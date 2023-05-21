@@ -6,7 +6,8 @@
 class XMLVisitor
 {
 public:
-    XMLVisitor() {}
+    int indentation;
+    XMLVisitor() : indentation(0) {}
     // literals
     void visit(ASTIntLit *);
     void visit(ASTFloatLit *);
