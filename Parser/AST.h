@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../Scanner/TokenStruct.h"
 #include "../XMLVisitor/XMLVisitor.h"
 
@@ -6,8 +7,31 @@ class ASTNode
 {
 public:
     virtual ~ASTNode() {}
+};
 
-    virtual void accept(XMLVisitor *visitor) = 0;
+class ASTResultExpr : public ASTFactor
+{
+public:
+    ASTBinOp *binop = nullptr;
+
+    ~ASTResultExpr()
+    {
+        delete lit;
+        delete id;
+        delete fncall;
+        delete subexpr;
+        delete unary;
+        delete randi;
+        delete padh;
+        delete padw;
+        delete read;
+        delete binop;
+    }
+
+    void setBinOp(ASTBinOp *binop)
+    {
+        this->binop = binop;
+    }
 };
 
 class ASTId : public ASTNode
@@ -27,9 +51,41 @@ public:
 class ASTLit : public ASTNode
 {
 public:
-    string value;
-    ASTLit(string v) : value(v) {}
-    virtual ~ASTLit() override {}
+    ASTIntLit *intl = nullptr;
+    ASTFloatLit *floatl = nullptr;
+    ASTColourLit *colourl = nullptr;
+    ASTBoolLit *booll = nullptr;
+
+    ASTLit() {}
+
+    virtual ~ASTLit() override
+    {
+        delete intl;
+        delete floatl;
+        delete colourl;
+        delete booll;
+    }
+
+    // setters
+    void setIntL(ASTIntLit *intl)
+    {
+        this->intl = intl;
+    }
+
+    void setFloatL(ASTFloatLit *floatl)
+    {
+        this->floatl = floatl;
+    }
+
+    void setColourL(ASTColourLit *colourl)
+    {
+        this->colourl = colourl;
+    }
+
+    void setBoolL(ASTBoolLit *booll)
+    {
+        this->booll = booll;
+    }
 };
 
 class ASTIntLit : public ASTNode
@@ -90,39 +146,44 @@ public:
     }
 };
 
-class ASTPadLit : public ASTNode
+class ASTPadH : public ASTNode
 {
 public:
-    string padl;
-    ASTPadLit(string pl) : padl(pl) {}
-    virtual ~ASTPadLit() override {}
-
-    void accept(XMLVisitor *visitor)
-    {
-        visitor->visit(this);
-    }
+    ASTPadH() {}
+    virtual ~ASTPadH() override {}
 };
 
-class ASTType : public ASTNode
+class ASTPadW : public ASTNode
 {
 public:
-    string type;
-    ASTType(string type) : type(type) {}
-    virtual ~ASTType() override {}
-
-    void accept(XMLVisitor *visitor)
-    {
-        visitor->visit(this);
-    }
+    ASTPadW() {}
+    virtual ~ASTPadW() override {}
 };
 
+// class ASTPadLit : public ASTNode
+//{
+// public:
+//     string padl;
+//     ASTPadLit(string pl) : padl(pl) {}
+//     virtual ~ASTPadLit() override {}
+//
+//     void accept(XMLVisitor *visitor)
+//     {
+//         visitor->visit(this);
+//     }
+// };
+
+//! ASTNode *left ASTNode *right need to be replaced
 class ASTBinOp : public ASTNode
 {
 public:
     string op;
-    ASTNode *left;
-    ASTNode *right;
-    ASTBinOp(string op, ASTNode *l, ASTNode *r) : op(op), left(l), right(r) {}
+    ASTResultExpr *left;
+    ASTResultExpr *right;
+
+    ASTBinOp(string op, ASTResultExpr *l, ASTResultExpr *r)
+        : op(op), left(l), right(r) {}
+
     virtual ~ASTBinOp() override
     {
         delete left;
@@ -139,8 +200,10 @@ class ASTUnaryOp : public ASTNode
 {
 public:
     string op;
-    ASTNode *expr;
-    ASTUnaryOp(string op, ASTNode *expr) : op(op), expr(expr) {}
+    ASTExpr *expr;
+
+    ASTUnaryOp(string op, ASTExpr *expr) : op(op), expr(expr) {}
+
     virtual ~ASTUnaryOp() override
     {
         delete expr;
@@ -155,8 +218,10 @@ public:
 class ASTProgram : public ASTNode
 {
 public:
-    vector<ASTNode *> stmnts;
-    ASTProgram(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
+    vector<ASTStatement *> stmnts;
+
+    ASTProgram(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
+
     virtual ~ASTProgram() override
     {
         for (int i = 0; i < stmnts.size(); i++)
@@ -175,7 +240,9 @@ class ASTBlock : public ASTNode
 {
 public:
     vector<ASTNode *> stmnts;
+
     ASTBlock(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
+
     virtual ~ASTBlock() override
     {
         for (int i = 0; i < stmnts.size(); i++)
@@ -193,10 +260,13 @@ public:
 class ASTVarDecl : public ASTNode
 {
 public:
-    ASTNode *id;
-    ASTNode *init;
+    ASTId *id;
+    ASTExpr *init;
     string type;
-    ASTVarDecl(ASTNode *id, ASTNode *init, string type) : id(id), init(init), type(type) {}
+
+    ASTVarDecl(ASTId *id, ASTExpr *init, string type)
+        : id(id), init(init), type(type) {}
+
     virtual ~ASTVarDecl() override
     {
         delete id;
@@ -212,10 +282,13 @@ public:
 class ASTIfStmn : public ASTNode
 {
 public:
-    ASTNode *cond;     // should be the ASTBinOP
-    ASTNode *ifbody;   // same as ASTBlock
-    ASTNode *elsebody; // same as ASTBlock
-    ASTIfStmn(ASTNode *cond, ASTNode *ifbody, ASTNode *elsebody = nullptr) : cond(cond), ifbody(ifbody), elsebody(elsebody) {}
+    ASTExpr *cond;
+    ASTIfBody *ifbody;     // same as ASTBlock
+    ASTElseBody *elsebody; // same as ASTBlock
+
+    ASTIfStmn(ASTExpr *cond, ASTIfBody *ifbody, ASTElseBody *elsebody = nullptr)
+        : cond(cond), ifbody(ifbody), elsebody(elsebody) {}
+
     virtual ~ASTIfStmn() override
     {
         delete cond;
@@ -232,8 +305,10 @@ public:
 class ASTIfBody : public ASTNode
 {
 public:
-    vector<ASTNode *> stmnts;
-    ASTIfBody(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
+    vector<ASTStatement *> stmnts;
+
+    ASTIfBody(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
+
     virtual ~ASTIfBody() override
     {
         for (int i = 0; i < stmnts.size(); i++)
@@ -251,8 +326,10 @@ public:
 class ASTElseBody : public ASTNode
 {
 public:
-    vector<ASTNode *> stmnts;
-    ASTElseBody(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
+    vector<ASTStatement *> stmnts;
+
+    ASTElseBody(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
+
     virtual ~ASTElseBody() override
     {
         for (int i = 0; i < stmnts.size(); i++)
@@ -270,9 +347,11 @@ public:
 class ASTWhile : public ASTNode
 {
 public:
-    ASTNode *condtn;
-    ASTNode *stmnts;
-    ASTWhile(ASTNode *condtn, ASTNode *stmnts) : condtn(condtn), stmnts(stmnts) {}
+    ASTExpr *condtn;
+    ASTBlock *stmnts;
+
+    ASTWhile(ASTExpr *condtn, ASTBlock *stmnts) : condtn(condtn), stmnts(stmnts) {}
+
     virtual ~ASTWhile() override
     {
         delete condtn;
@@ -288,12 +367,15 @@ public:
 class ASTFor : public ASTNode
 {
 public:
-    ASTNode *vardec;
-    ASTNode *expr;
-    ASTNode *assignment;
-    ASTNode *block;
-    ASTFor(ASTNode *vardec = nullptr, ASTNode *expr = nullptr, ASTNode *assignment = nullptr, ASTNode *block = nullptr)
+    ASTVarDecl *vardec;
+    ASTExpr *expr;
+    ASTAssignment *assignment;
+    ASTBlock *block;
+
+    ASTFor(ASTVarDecl *vardec = nullptr, ASTExpr *expr = nullptr,
+           ASTAssignment *assignment = nullptr, ASTBlock *block = nullptr)
         : vardec(vardec), expr(expr), assignment(assignment), block(block) {}
+
     virtual ~ASTFor() override
     {
         delete vardec;
@@ -311,16 +393,19 @@ public:
 class ASTFunDec : public ASTNode
 {
 public:
-    ASTNode *id;
-    ASTNode *params;
-    ASTNode *rtrntype;
-    ASTNode *block;
-    ASTFunDec(ASTNode *id, ASTNode *params, ASTNode *rtrntype, ASTNode *block) : id(id), params(params), rtrntype(rtrntype), block(block) {}
+    ASTId *id;
+    ASTFormalParams *params;
+    string rtrntype;
+    ASTBlock *block;
+
+    ASTFunDec(ASTId *id, ASTFormalParams *params, string rtrntype, ASTBlock *block)
+        : id(id), params(params), rtrntype(rtrntype), block(block) {}
+
     virtual ~ASTFunDec() override
     {
         delete id;
         delete params;
-        delete rtrntype;
+        delete block;
     }
 
     void accept(XMLVisitor *visitor)
@@ -332,9 +417,11 @@ public:
 class ASTFunCall : public ASTNode
 {
 public:
-    ASTNode *id;
-    ASTNode *params;
-    ASTFunCall(ASTNode *id, ASTNode *params) : id(id), params(params) {}
+    ASTId *id;
+    ASTParams *params;
+
+    ASTFunCall(ASTId *id, ASTParams *params) : id(id), params(params) {}
+
     virtual ~ASTFunCall() override
     {
         delete id;
@@ -350,8 +437,10 @@ public:
 class ASTParams : public ASTNode
 {
 public:
-    vector<ASTNode *> expressions;
-    ASTParams(vector<ASTNode *> expressions) : expressions(expressions) {}
+    vector<ASTExpr *> expressions;
+
+    ASTParams(vector<ASTExpr *> expressions) : expressions(expressions) {}
+
     virtual ~ASTParams() override
     {
         for (int i = 0; i < expressions.size(); i++)
@@ -369,10 +458,15 @@ public:
 class ASTFormalParam : public ASTNode
 {
 public:
-    ASTNode *id;
-    ASTNode *type;
-    ASTFormalParam(ASTNode *id, ASTNode *type) : id(id), type(type) {}
-    virtual ~ASTFormalParam() override {}
+    ASTId *id;
+    string type;
+
+    ASTFormalParam(ASTId *id, string type) : id(id), type(type) {}
+
+    virtual ~ASTFormalParam() override
+    {
+        delete id;
+    }
 
     void accept(XMLVisitor *visitor)
     {
@@ -383,8 +477,10 @@ public:
 class ASTFormalParams : public ASTNode
 {
 public:
-    vector<ASTNode *> params;
-    ASTFormalParams(vector<ASTNode *> params) : params(params) {}
+    vector<ASTFormalParam *> params;
+
+    ASTFormalParams(vector<ASTFormalParam *> params) : params(params) {}
+
     virtual ~ASTFormalParams() override
     {
         for (int i = 0; i < params.size(); i++)
@@ -402,11 +498,13 @@ public:
 class ASTPrintStmnt : public ASTNode
 {
 public:
-    ASTNode *expression;
-    ASTPrintStmnt(ASTNode *expression) : expression(expression) {}
+    ASTExpr *expr;
+
+    ASTPrintStmnt(ASTExpr *expr) : expr(expr) {}
+
     virtual ~ASTPrintStmnt() override
     {
-        delete expression;
+        delete expr;
     }
 
     void accept(XMLVisitor *visitor)
@@ -418,11 +516,13 @@ public:
 class ASTRandiStmnt : public ASTNode
 {
 public:
-    ASTNode *expression;
-    ASTRandiStmnt(ASTNode *expression) : expression(expression) {}
+    ASTExpr *expr;
+
+    ASTRandiStmnt(ASTExpr *expr) : expr(expr) {}
+
     virtual ~ASTRandiStmnt() override
     {
-        delete expression;
+        delete expr;
     }
 
     void accept(XMLVisitor *visitor)
@@ -434,40 +534,23 @@ public:
 class ASTPixelStmnt : public ASTNode
 {
 public:
-    ASTNode *pixel;
-    ASTNode *amount;
-    ASTNode *col;
-    ASTPixelStmnt(ASTNode *pixel, ASTNode *amount, ASTNode *col) : pixel(pixel), amount(amount), col(col) {}
+    ASTExpr *pixel;
+    ASTExpr *amount;
+    ASTExpr *col;
+    ASTExpr *expr1;
+    ASTExpr *expr2;
+
+    ASTPixelStmnt(ASTExpr *pixel, ASTExpr *amount, ASTExpr *col,
+                  ASTExpr *expr1 = nullptr, ASTExpr *expr2 = nullptr)
+        : pixel(pixel), amount(amount), col(col) {}
+
     virtual ~ASTPixelStmnt() override
     {
         delete pixel;
         delete amount;
         delete col;
-    }
-
-    void accept(XMLVisitor *visitor)
-    {
-        visitor->visit(this);
-    }
-};
-
-class ASTPixelrStmnt : public ASTNode
-{
-public:
-    // TODO: change this approach by merging the class with ASTPixelSDtmnt and setting the extra 2 expressions to nullptr as default values
-    ASTNode *expr1;
-    ASTNode *expr2;
-    ASTNode *expr3;
-    ASTNode *expr4;
-    ASTNode *expr5;
-    ASTPixelrStmnt(ASTNode *expr1, ASTNode *expr2, ASTNode *expr3, ASTNode *expr4, ASTNode *expr5) : expr1(expr1), expr2(expr2), expr3(expr3), expr4(expr4), expr5(expr5) {}
-    virtual ~ASTPixelrStmnt() override
-    {
         delete expr1;
         delete expr2;
-        delete expr3;
-        delete expr4;
-        delete expr5;
     }
 
     void accept(XMLVisitor *visitor)
@@ -479,11 +562,13 @@ public:
 class ASTDelayStmnt : public ASTNode
 {
 public:
-    ASTNode *expression;
-    ASTDelayStmnt(ASTNode *expression) : expression(expression) {}
+    ASTExpr *expr;
+
+    ASTDelayStmnt(ASTExpr *expr) : expr(expr) {}
+
     virtual ~ASTDelayStmnt() override
     {
-        delete expression;
+        delete expr;
     }
 
     void accept(XMLVisitor *visitor)
@@ -495,9 +580,11 @@ public:
 class ASTReadStmnt : public ASTNode
 {
 public:
-    ASTNode *expr1;
-    ASTNode *expr2;
-    ASTReadStmnt(ASTNode *expr1, ASTNode *expr2) : expr1(expr1), expr2(expr2) {}
+    ASTExpr *expr1;
+    ASTExpr *expr2;
+
+    ASTReadStmnt(ASTExpr *expr1, ASTExpr *expr2) : expr1(expr1), expr2(expr2) {}
+
     virtual ~ASTReadStmnt() override
     {
         delete expr1;
@@ -510,13 +597,88 @@ public:
     }
 };
 
-// TODO: Merge the below 3 classes into 1 class as they are effectively the same
+class ASTFactor : public ASTNode
+{
+public:
+    ASTLit *lit = nullptr;
+    ASTId *id = nullptr;
+    ASTFunCall *fncall = nullptr;
+    ASTExpr *subexpr = nullptr;
+    ASTUnaryOp *unary = nullptr;
+    ASTRandiStmnt *randi = nullptr;
+    ASTPadH *padh = nullptr;
+    ASTPadW *padw = nullptr;
+    ASTReadStmnt *read = nullptr;
+
+    ASTFactor() {}
+
+    virtual ~ASTFactor() override
+    {
+        delete lit;
+        delete id;
+        delete fncall;
+        delete subexpr;
+        delete unary;
+        delete randi;
+        delete padh;
+        delete padw;
+        delete read;
+    }
+
+    // setters
+    void setLit(ASTLit *lit)
+    {
+        this->lit = lit;
+    }
+
+    void setId(ASTId *id)
+    {
+        this->id = id;
+    }
+
+    void setFnCall(ASTFunCall *fncall)
+    {
+        this->fncall = fncall;
+    }
+
+    void setSubExpr(ASTExpr *subexpr)
+    {
+        this->subexpr = subexpr;
+    }
+
+    void setUnary(ASTUnaryOp *unary)
+    {
+        this->unary = unary;
+    }
+
+    void setRandi(ASTRandiStmnt *randi)
+    {
+        this->randi = randi;
+    }
+
+    void setPadH(ASTPadH *padh)
+    {
+        this->padh = padh;
+    }
+
+    void setPadW(ASTPadW *padw)
+    {
+        this->padw = padw;
+    }
+
+    void setRead(ASTReadStmnt *read)
+    {
+        this->read = read;
+    }
+};
 
 class ASTTerm : public ASTNode
 {
 public:
-    vector<ASTNode *> factors;
-    ASTTerm(vector<ASTNode *> factors) : factors(factors) {}
+    vector<ASTFactor *> factors;
+
+    ASTTerm(vector<ASTFactor *> factors) : factors(factors) {}
+
     virtual ~ASTTerm() override
     {
         for (int i = 0; i < factors.size(); i++)
@@ -534,8 +696,10 @@ public:
 class ASTSimpleExpr : public ASTNode
 {
 public:
-    vector<ASTNode *> terms;
-    ASTSimpleExpr(vector<ASTNode *> terms) : terms(terms) {}
+    vector<ASTTerm *> terms;
+
+    ASTSimpleExpr(vector<ASTTerm *> terms) : terms(terms) {}
+
     virtual ~ASTSimpleExpr() override
     {
         for (int i = 0; i < terms.size(); i++)
@@ -553,8 +717,10 @@ public:
 class ASTExpr : public ASTNode
 {
 public:
-    vector<ASTNode *> simpleExprs;
-    ASTExpr(vector<ASTNode *> simpleExprs) : simpleExprs(simpleExprs) {}
+    vector<ASTSimpleExpr *> simpleExprs;
+
+    ASTExpr(vector<ASTSimpleExpr *> simpleExprs) : simpleExprs(simpleExprs) {}
+
     virtual ~ASTExpr() override
     {
         for (int i = 0; i < simpleExprs.size(); i++)
@@ -569,13 +735,14 @@ public:
     }
 };
 
-// TODO: you can actually merge this with VarDec class
 class ASTAssignment : public ASTNode
 {
 public:
-    ASTNode *id;
-    ASTNode *expr;
-    ASTAssignment(ASTNode *id, ASTNode *expr) : id(id), expr(expr) {}
+    ASTId *id;
+    ASTExpr *expr;
+
+    ASTAssignment(ASTId *id, ASTExpr *expr) : id(id), expr(expr) {}
+
     virtual ~ASTAssignment() override
     {
         delete id;
@@ -585,5 +752,109 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+};
+
+class ASTRtrnStmnt : public ASTNode
+{
+public:
+    ASTExpr *expr;
+
+    ASTRtrnStmnt(ASTExpr *expr) : expr(expr) {}
+
+    virtual ~ASTRtrnStmnt() override
+    {
+        delete expr;
+    }
+
+    // void accept
+};
+
+class ASTStatement : public ASTNode
+{
+public:
+    ASTVarDecl *vardec = nullptr;
+    ASTAssignment *assi = nullptr;
+    ASTPrintStmnt *print = nullptr;
+    ASTDelayStmnt *delay = nullptr;
+    ASTPixelStmnt *pixel = nullptr;
+    ASTIfStmn *ifstmnt = nullptr;
+    ASTFor *forstmnt = nullptr;
+    ASTWhile *whilestmnt = nullptr;
+    ASTRtrnStmnt *rtrn = nullptr;
+    ASTFunDec *fundec = nullptr;
+    ASTBlock *block = nullptr;
+
+    ASTStatement() {}
+
+    virtual ~ASTStatement() override
+    {
+        delete vardec;
+        delete assi;
+        delete print;
+        delete delay;
+        delete pixel;
+        delete ifstmnt;
+        delete forstmnt;
+        delete whilestmnt;
+        delete rtrn;
+        delete fundec;
+        delete block;
+    }
+
+    // setters
+    void setVarDec(ASTVarDecl *vardec)
+    {
+        this->vardec = vardec;
+    }
+
+    void setAssi(ASTAssignment *assi)
+    {
+        this->assi = assi;
+    }
+
+    void setPrint(ASTPrintStmnt *print)
+    {
+        this->print = print;
+    }
+
+    void setDelay(ASTDelayStmnt *delay)
+    {
+        this->delay = delay;
+    }
+
+    void setPixel(ASTPixelStmnt *pixel)
+    {
+        this->pixel = pixel;
+    }
+
+    void setIfStmnt(ASTIfStmn *ifstmnt)
+    {
+        this->ifstmnt = ifstmnt;
+    }
+
+    void setForStmnt(ASTFor *forstmnt)
+    {
+        this->forstmnt = forstmnt;
+    }
+
+    void setWhileStmnt(ASTWhile *whilestmnt)
+    {
+        this->whilestmnt = whilestmnt;
+    }
+
+    void setRtrn(ASTRtrnStmnt *rtrn)
+    {
+        this->rtrn = rtrn;
+    }
+
+    void setFunDec(ASTFunDec *fundec)
+    {
+        this->fundec = fundec;
+    }
+
+    void setBlock(ASTBlock *block)
+    {
+        this->block = block;
     }
 };
