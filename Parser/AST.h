@@ -47,7 +47,6 @@ public:
     }
 };
 
-//! REMOVE THIS
 class ASTLit : public ASTNode
 {
 public:
@@ -173,7 +172,6 @@ public:
 //     }
 // };
 
-//! ASTNode *left ASTNode *right need to be replaced
 class ASTBinOp : public ASTNode
 {
 public:
@@ -239,9 +237,9 @@ public:
 class ASTBlock : public ASTNode
 {
 public:
-    vector<ASTNode *> stmnts;
+    vector<ASTStatement *> stmnts;
 
-    ASTBlock(vector<ASTNode *> stmnts) : stmnts(stmnts) {}
+    ASTBlock(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
 
     virtual ~ASTBlock() override
     {
