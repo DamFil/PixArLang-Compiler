@@ -101,6 +101,8 @@ public:
 
     // groups of statements
     ASTBlock *block();
+    ASTIfBody *ifbody();
+    ASTElseBody *elsebody();
     ASTProgram *program();
 
     // parsing function (wrapper for program())

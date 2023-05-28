@@ -9,23 +9,21 @@ public:
     virtual ~ASTNode() {}
 };
 
-class ASTResultExpr : public ASTFactor
+class ASTResultExpr
 {
 public:
+    ASTFactor *factor = nullptr;
     ASTBinOp *binop = nullptr;
 
     ~ASTResultExpr()
     {
-        delete lit;
-        delete id;
-        delete fncall;
-        delete subexpr;
-        delete unary;
-        delete randi;
-        delete padh;
-        delete padw;
-        delete read;
+        delete factor;
         delete binop;
+    }
+
+    void setFactor(ASTFactor *factor)
+    {
+        this->factor = factor;
     }
 
     void setBinOp(ASTBinOp *binop)
@@ -281,8 +279,8 @@ class ASTIfStmn : public ASTNode
 {
 public:
     ASTExpr *cond;
-    ASTIfBody *ifbody;     // same as ASTBlock
-    ASTElseBody *elsebody; // same as ASTBlock
+    ASTIfBody *ifbody;
+    ASTElseBody *elsebody;
 
     ASTIfStmn(ASTExpr *cond, ASTIfBody *ifbody, ASTElseBody *elsebody = nullptr)
         : cond(cond), ifbody(ifbody), elsebody(elsebody) {}
@@ -715,16 +713,13 @@ public:
 class ASTExpr : public ASTNode
 {
 public:
-    vector<ASTSimpleExpr *> simpleExprs;
+    ASTResultExpr *expr;
 
-    ASTExpr(vector<ASTSimpleExpr *> simpleExprs) : simpleExprs(simpleExprs) {}
+    ASTExpr(ASTResultExpr *expr) : expr(expr) {}
 
     virtual ~ASTExpr() override
     {
-        for (int i = 0; i < simpleExprs.size(); i++)
-        {
-            delete simpleExprs[i];
-        }
+        delete expr;
     }
 
     void accept(XMLVisitor *visitor)

@@ -386,7 +386,7 @@ ASTExpr *Parser::expr()
     return new ASTExpr(se);
 }
 
-ASTNode *Parser::assignment()
+ASTAssignment *Parser::assignment()
 {
     nextToken();
     if (currentToken.type != IDENTIFIER)
@@ -394,7 +394,7 @@ ASTNode *Parser::assignment()
         cout << "Syntax Error: Expected an identifer" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *id = new ASTId(currentToken.lexeme);
+    ASTId *id = new ASTId(currentToken.lexeme);
 
     nextToken();
     if (currentToken.type != OP_ASSIGNMENT)
@@ -403,11 +403,11 @@ ASTNode *Parser::assignment()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
     return new ASTAssignment(id, node);
 }
 
-ASTNode *Parser::varDec()
+ASTVarDecl *Parser::varDec()
 {
     nextToken();
     if (currentToken.type != KEY_VAR_DEC)
@@ -422,7 +422,7 @@ ASTNode *Parser::varDec()
         cout << "Syntax Error: Need to specify the name of the variable" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *id = new ASTId(currentToken.lexeme);
+    ASTId *id = new ASTId(currentToken.lexeme);
 
     nextToken();
     if (currentToken.type != PUNCT_COLON)
@@ -446,11 +446,11 @@ ASTNode *Parser::varDec()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
     return new ASTVarDecl(id, node, t);
 }
 
-ASTNode *Parser::printStmnt()
+ASTPrintStmnt *Parser::printStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_PRINT)
@@ -459,11 +459,11 @@ ASTNode *Parser::printStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
     return new ASTPrintStmnt(node);
 }
 
-ASTNode *Parser::delayStmnt()
+ASTDelayStmnt *Parser::delayStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_DELAY)
@@ -472,11 +472,11 @@ ASTNode *Parser::delayStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
     return new ASTDelayStmnt(node);
 }
 
-ASTNode *Parser::pixelStmnt()
+ASTPixelStmnt *Parser::pixelStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_PIX)
@@ -486,7 +486,7 @@ ASTNode *Parser::pixelStmnt()
             cout << "Syntax Error: Missing \"__pixel\" or \"__pixelr\"" << endl;
             exit(EXIT_FAILURE);
         }
-        ASTNode *node1 = expr();
+        ASTExpr *expr1 = expr();
 
         nextToken();
         if (currentToken.type != PUNCT_COMMA)
@@ -495,7 +495,7 @@ ASTNode *Parser::pixelStmnt()
             exit(EXIT_FAILURE);
         }
 
-        ASTNode *node2 = expr();
+        ASTExpr *expr2 = expr();
 
         nextToken();
         if (currentToken.type != PUNCT_COMMA)
@@ -504,7 +504,7 @@ ASTNode *Parser::pixelStmnt()
             exit(EXIT_FAILURE);
         }
 
-        ASTNode *node3 = expr();
+        ASTExpr *expr3 = expr();
 
         nextToken();
         if (currentToken.type != PUNCT_COMMA)
@@ -513,7 +513,7 @@ ASTNode *Parser::pixelStmnt()
             exit(EXIT_FAILURE);
         }
 
-        ASTNode *node4 = expr();
+        ASTExpr *expr4 = expr();
 
         nextToken();
         if (currentToken.type != PUNCT_COMMA)
@@ -522,11 +522,11 @@ ASTNode *Parser::pixelStmnt()
             exit(EXIT_FAILURE);
         }
 
-        ASTNode *node5 = expr();
+        ASTExpr *expr5 = expr();
 
-        return new ASTPixelrStmnt(node1, node2, node3, node4, node5);
+        return new ASTPixelStmnt(expr1, expr2, expr3, expr4, expr5);
     }
-    ASTNode *node1 = expr();
+    ASTExpr *expr1 = expr();
 
     nextToken();
     if (currentToken.type != PUNCT_COMMA)
@@ -535,7 +535,7 @@ ASTNode *Parser::pixelStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node2 = expr();
+    ASTExpr *expr2 = expr();
 
     nextToken();
     if (currentToken.type != PUNCT_COMMA)
@@ -544,12 +544,12 @@ ASTNode *Parser::pixelStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node3 = expr();
+    ASTExpr *expr3 = expr();
 
-    return new ASTPixelStmnt(node1, node2, node3);
+    return new ASTPixelStmnt(expr1, expr2, expr3);
 }
 
-ASTNode *Parser::rtrnStmnt()
+ASTRtrnStmnt *Parser::rtrnStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_RETURN)
@@ -558,10 +558,10 @@ ASTNode *Parser::rtrnStmnt()
         exit(EXIT_FAILURE);
     }
 
-    return expr();
+    return new ASTRtrnStmnt(expr());
 }
 
-ASTNode *Parser::ifStmnt()
+ASTIfStmn *Parser::ifStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_IF)
@@ -577,7 +577,7 @@ ASTNode *Parser::ifStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *conditon = expr();
+    ASTExpr *conditon = expr();
 
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
@@ -585,20 +585,20 @@ ASTNode *Parser::ifStmnt()
         cout << "Syntax Error: Missing '')" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *ifbody = block();
+    ASTIfBody *ifbod = ifbody();
 
     if (peekToken().type != KEY_ELSE)
     {
-        return new ASTIfStmn(conditon, ifbody);
+        return new ASTIfStmn(conditon, ifbod);
     }
 
     nextToken();
-    ASTNode *elsebody = block();
+    ASTElseBody *elsebod = elsebody();
 
-    return new ASTIfStmn(conditon, ifbody, elsebody);
+    return new ASTIfStmn(conditon, ifbod, elsebod);
 }
 
-ASTNode *Parser::forStmnt()
+ASTFor *Parser::forStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_FOR)
@@ -614,7 +614,7 @@ ASTNode *Parser::forStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *vd = nullptr;
+    ASTVarDecl *vd = nullptr;
     if (peekToken().type == KEY_VAR_DEC)
         // we know there is a variable declaraion in this case
         vd = varDec();
@@ -626,7 +626,7 @@ ASTNode *Parser::forStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *condition = expr();
+    ASTExpr *condition = expr();
 
     nextToken();
     if (currentToken.type != PUNCT_SEMICOLON)
@@ -635,7 +635,7 @@ ASTNode *Parser::forStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *assnmt = nullptr;
+    ASTAssignment *assnmt = nullptr;
     if (peekToken().type == IDENTIFIER)
         // we know there is an assignment statement
         assnmt = assignment();
@@ -647,11 +647,11 @@ ASTNode *Parser::forStmnt()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *b = block();
+    ASTBlock *b = block();
     return new ASTFor(vd, condition, assnmt, b);
 }
 
-ASTNode *Parser::whileStmnt()
+ASTWhile *Parser::whileStmnt()
 {
     nextToken();
     if (currentToken.type != KEY_WHILE)
@@ -666,7 +666,7 @@ ASTNode *Parser::whileStmnt()
         cout << "Syntax Error: Missing '('" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *condition = expr();
+    ASTExpr *condition = expr();
 
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
@@ -674,12 +674,12 @@ ASTNode *Parser::whileStmnt()
         cout << "Syntax Error: Missing ')'" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *b = block();
+    ASTBlock *b = block();
 
     return new ASTWhile(condition, b);
 }
 
-ASTNode *Parser::formalParam()
+ASTFormalParam *Parser::formalParam()
 {
     nextToken();
     if (currentToken.type != IDENTIFIER)
@@ -687,7 +687,7 @@ ASTNode *Parser::formalParam()
         cout << "Sytnax Error: Expected an Identifer" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *id = new ASTId(currentToken.lexeme);
+    ASTId *id = new ASTId(currentToken.lexeme);
 
     nextToken();
     if (currentToken.type != PUNCT_COLON)
@@ -707,9 +707,9 @@ ASTNode *Parser::formalParam()
     return new ASTFormalParam(id, t);
 }
 
-ASTNode *Parser::formalParams()
+ASTFormalParams *Parser::formalParams()
 {
-    vector<ASTNode *> parameters{};
+    vector<ASTFormalParam *> parameters{};
     parameters.push_back(formalParam());
 
     while (peekToken().type == PUNCT_COMMA)
@@ -721,7 +721,7 @@ ASTNode *Parser::formalParams()
     return new ASTFormalParams(parameters);
 }
 
-ASTNode *Parser::funDec()
+ASTFunDec *Parser::funDec()
 {
     nextToken();
     if (currentToken.type != KEY_FUN_DEC)
@@ -737,7 +737,7 @@ ASTNode *Parser::funDec()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *id = new ASTId(currentToken.lexeme);
+    ASTId *id = new ASTId(currentToken.lexeme);
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
     {
@@ -745,7 +745,7 @@ ASTNode *Parser::funDec()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *params = formalParams();
+    ASTFormalParams *params = formalParams();
 
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
@@ -769,61 +769,68 @@ ASTNode *Parser::funDec()
     }
     string t = currentToken.lexeme;
 
-    ASTNode *b = block();
+    ASTBlock *b = block();
 
     return new ASTFunDec(id, params, t, b);
 }
 
-ASTNode *Parser::statement()
+ASTStatement *Parser::statement()
 {
-    ASTNode *n = nullptr;
+    ASTStatement *s = nullptr;
     token t = peekToken();
+
     switch (peekToken().type)
     {
     case KEY_VAR_DEC:
-        n = varDec();
+        s->setVarDec(varDec());
         break;
     case IDENTIFIER:
-        n = assignment();
+        s->setAssi(assignment());
         break;
     case KEY_PRINT:
-        n = printStmnt();
+        s->setPrint(printStmnt());
         break;
     case KEY_DELAY:
-        n = delayStmnt();
+        s->setDelay(delayStmnt());
         break;
     case KEY_PIX:
     case KEY_PIX_R:
-        n = pixelStmnt();
+        s->setPixel(pixelStmnt());
         break;
     case KEY_IF:
-        return ifStmnt();
+        s->setIfStmnt(ifStmnt());
+        return s;
     case KEY_FOR:
-        return forStmnt();
+        s->setForStmnt(forStmnt());
+        return s;
     case KEY_WHILE:
-        return whileStmnt();
+        s->setWhileStmnt(whileStmnt());
+        return s;
     case KEY_RETURN:
-        n = rtrnStmnt();
+        s->setRtrn(rtrnStmnt());
         break;
+    case KEY_FUN_DEC:
+        s->setFunDec(funDec());
+        return s;
+    case PUNCT_OPEN_CURL:
+        s->setBlock(block());
+        return s;
     default:
-        if (peekToken().type == KEY_FUN_DEC)
-            return funDec();
-
-        if (peekToken().type == PUNCT_OPEN_CURL)
-            return block();
         cout << "Syntax Error: Statements are not valid" << endl;
         exit(EXIT_FAILURE);
     }
+
     nextToken();
     if (currentToken.type != PUNCT_SEMICOLON)
     {
         cout << "Syntax Error: Missing ';'" << endl;
         exit(EXIT_FAILURE);
     }
-    return n;
+
+    return s;
 }
 
-ASTNode *Parser::block()
+ASTBlock *Parser::block()
 {
     nextToken();
     if (currentToken.type != PUNCT_OPEN_CURL)
@@ -832,7 +839,7 @@ ASTNode *Parser::block()
         exit(EXIT_FAILURE);
     }
 
-    vector<ASTNode *> stmnts{};
+    vector<ASTStatement *> stmnts{};
     while (peekToken().type != PUNCT_CLOSED_CURL)
     {
         stmnts.push_back(statement());
@@ -848,9 +855,59 @@ ASTNode *Parser::block()
     return new ASTBlock(stmnts);
 }
 
-ASTNode *Parser::program()
+ASTIfBody *Parser::ifbody()
 {
-    vector<ASTNode *> stmnts{};
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_CURL)
+    {
+        cout << "Syntax Error: Missing '{'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    vector<ASTStatement *> stmnts{};
+    while (peekToken().type != PUNCT_CLOSED_CURL)
+    {
+        stmnts.push_back(statement());
+    }
+
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_CURL)
+    {
+        cout << "Syntax Error: Missing '}'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return new ASTIfBody(stmnts);
+}
+
+ASTElseBody *Parser::elsebody()
+{
+    nextToken();
+    if (currentToken.type != PUNCT_OPEN_CURL)
+    {
+        cout << "Syntax Error: Missing '{'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    vector<ASTStatement *> stmnts{};
+    while (peekToken().type != PUNCT_CLOSED_CURL)
+    {
+        stmnts.push_back(statement());
+    }
+
+    nextToken();
+    if (currentToken.type != PUNCT_CLOSED_CURL)
+    {
+        cout << "Syntax Error: Missing '}'" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return new ASTElseBody(stmnts);
+}
+
+ASTProgram *Parser::program()
+{
+    vector<ASTStatement *> stmnts{};
 
     while (peekToken().type != INVALID_TOKEN && peekToken().lexeme != "END")
     {
