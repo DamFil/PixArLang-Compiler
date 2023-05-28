@@ -5,5 +5,5 @@ all: a.out test
 #test: Tests/test.cpp Parser/Parser.cpp Parser/Parser.h Scanner/Scanner.cpp Scanner/Scanner.h Scanner/FileStreamHandler.h Scanner/TokenStruct.h
 #	g++ Tests/test.cpp Parser/Parser.cpp Scanner/Scanner.cpp -o test
 
-a.out: Tests/test.cpp Parser/Parser.cpp Parser/Parser.h Scanner/Scanner.cpp Scanner/Scanner.h Scanner/FileStreamHandler.h Scanner/TokenStruct.h
+a.out: Tests/test.cpp Parser/Parser.cpp Parser/Parser.h Parser/AST.h Scanner/Scanner.cpp Scanner/Scanner.h Scanner/FileStreamHandler.h Scanner/TokenStruct.h
 	g++ -g Tests/test.cpp Parser/Parser.cpp Scanner/Scanner.cpp
