@@ -7,15 +7,6 @@
 3) The caller must not call nextToken() before calling the function
 */
 
-/*
-TODO - Remove the expr, simpleExpr, term nodes and directly return the reuslt of the factor
-TODO - Add typefield to id class
-*TODO - Add override to all of the destructors
-*TODO - Add an accept function for the XMLvisitor class for each of the AST nodes
-*TODO - Add sepererate ASTNodes for integer, float, colour literals and for pad_h and pad_w
-     - Subsequently change the factor function to reflect this
-*/
-
 // constructor
 Parser::Parser(string path) : scan(new Scanner(path))
 {
@@ -45,7 +36,7 @@ bool Parser::isType(token t)
     }
 }
 
-ASTNode *Parser::padRead()
+ASTReadStmnt *Parser::padRead()
 {
     nextToken();
     if (currentToken.type != KEY_PAD_READ)
@@ -54,12 +45,12 @@ ASTNode *Parser::padRead()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node1 = expr();
-    ASTNode *node2 = expr();
+    ASTExpr *node1 = expr();
+    ASTExpr *node2 = expr();
     return new ASTReadStmnt(node1, node2);
 }
 
-ASTNode *Parser::padRandI()
+ASTRandiStmnt *Parser::padRandI()
 {
     nextToken();
     if (currentToken.type != KEY_PAD_RANDI)
@@ -68,11 +59,11 @@ ASTNode *Parser::padRandI()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
     return new ASTRandiStmnt(node);
 }
 
-ASTNode *Parser::intLit()
+ASTIntLit *Parser::intLit()
 {
     nextToken();
     if (currentToken.type != INT_LIT)
@@ -83,7 +74,7 @@ ASTNode *Parser::intLit()
     return new ASTIntLit(currentToken.lexeme);
 }
 
-ASTNode *Parser::floatLit()
+ASTFloatLit *Parser::floatLit()
 {
     nextToken();
     if (currentToken.type != FLOAT_LIT)
@@ -94,7 +85,7 @@ ASTNode *Parser::floatLit()
     return new ASTFloatLit(currentToken.lexeme);
 }
 
-ASTNode *Parser::colLit()
+ASTColourLit *Parser::colLit()
 {
     nextToken();
     if (currentToken.type != COL_LIT)
@@ -105,7 +96,7 @@ ASTNode *Parser::colLit()
     return new ASTColourLit(currentToken.lexeme);
 }
 
-ASTNode *Parser::boolLit()
+ASTBoolLit *Parser::boolLit()
 {
     nextToken();
     if (currentToken.type != KEY_BOOL_LIT_F && currentToken.type != KEY_BOOL_LIT_T)
@@ -116,21 +107,22 @@ ASTNode *Parser::boolLit()
     return new ASTBoolLit(currentToken.lexeme);
 }
 
-ASTNode *Parser::padLit()
-{
-    nextToken();
-    if (currentToken.type != KEY_PAD_H && currentToken.type != KEY_PAD_W)
-    {
-        cout << "Syntax Error: Missing a Pad Literal (__height or __width)" << endl;
-        exit(EXIT_FAILURE);
-    }
-    return new ASTPadLit(currentToken.lexeme);
-}
+//? Do something about this
+// ASTNode *Parser::padLit()
+//{
+//     nextToken();
+//     if (currentToken.type != KEY_PAD_H && currentToken.type != KEY_PAD_W)
+//     {
+//         cout << "Syntax Error: Missing a Pad Literal (__height or __width)" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+//     return new ASTPadLit(currentToken.lexeme);
+// }
 
-ASTNode *Parser::actualParams()
+ASTParams *Parser::actualParams()
 {
     // nextToken(); - because this is going to be called by the call to the expr()
-    vector<ASTNode *> nodes{};
+    vector<ASTExpr *> nodes{};
     while (currentToken.type != PUNCT_CLOSED_PAR)
     {
         nodes.push_back(expr());
@@ -141,7 +133,7 @@ ASTNode *Parser::actualParams()
     return new ASTParams(nodes);
 }
 
-ASTNode *Parser::funCall()
+ASTFunCall *Parser::funCall()
 {
     nextToken();
     if (currentToken.type != IDENTIFIER)
@@ -150,7 +142,7 @@ ASTNode *Parser::funCall()
         exit(EXIT_FAILURE);
     }
     // identifier node
-    ASTNode *node1 = new ASTId(currentToken.lexeme);
+    ASTId *node1 = new ASTId(currentToken.lexeme);
 
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
@@ -159,7 +151,7 @@ ASTNode *Parser::funCall()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node2 = actualParams();
+    ASTParams *node2 = actualParams();
 
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
@@ -171,7 +163,7 @@ ASTNode *Parser::funCall()
     return new ASTFunCall(node1, node2);
 }
 
-ASTNode *Parser::subExpr()
+ASTExpr *Parser::subExpr()
 {
     nextToken();
     if (currentToken.type != PUNCT_OPEN_PAR)
@@ -180,7 +172,7 @@ ASTNode *Parser::subExpr()
         exit(EXIT_FAILURE);
     }
 
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
 
     nextToken();
     if (currentToken.type != PUNCT_CLOSED_PAR)
@@ -192,7 +184,7 @@ ASTNode *Parser::subExpr()
     return node;
 }
 
-ASTNode *Parser::unary()
+ASTUnaryOp *Parser::unary()
 {
     nextToken();
     if (currentToken.type != OP_UNARY_NOT && currentToken.type != OP_ADD_SUB)
@@ -202,127 +194,196 @@ ASTNode *Parser::unary()
     }
 
     string op = currentToken.lexeme;
-    ASTNode *node = expr();
+    ASTExpr *node = expr();
     return new ASTUnaryOp(op, node);
 }
 
-ASTNode *Parser::factor()
+ASTFactor *Parser::factor()
 {
-    // TODO: Do a switch statement instead of spamming ifs
+    ASTFactor *factor = new ASTFactor();
+
     switch (peekToken().type)
     {
     case INT_LIT:
-        return intLit();
+        ASTLit *lit = new ASTLit();
+        lit->setIntL(new ASTIntLit(currentToken.lexeme));
+        factor->setLit(lit);
+        break;
+
     case FLOAT_LIT:
-        return floatLit();
+        ASTLit *lit = new ASTLit();
+        lit->setFloatL(new ASTFloatLit(currentToken.lexeme));
+        factor->setLit(lit);
+        break;
+
     case COL_LIT:
-        return colLit();
+        ASTLit *lit = new ASTLit();
+        lit->setColourL(new ASTColourLit(currentToken.lexeme));
+        factor->setLit(lit);
+        break;
+
     case KEY_BOOL_LIT_F:
     case KEY_BOOL_LIT_T:
-        return boolLit();
+        ASTLit *lit = new ASTLit();
+        lit->setBoolL(new ASTBoolLit(currentToken.lexeme));
+        factor->setLit(lit);
+        break;
+
     case KEY_PAD_W:
+        factor->setPadW(new ASTPadW());
+        break;
+
     case KEY_PAD_H:
-        return padLit();
+        factor->setPadH(new ASTPadH());
+        break;
+
     case IDENTIFIER:
         nextToken();
         if (peekToken().type == PUNCT_OPEN_PAR)
         {
             prevToken();
-            return funCall();
+            factor->setFnCall(funCall());
         }
         else
-            return new ASTId(currentToken.lexeme);
+            factor->setId(new ASTId(currentToken.lexeme));
+        break;
+
     case PUNCT_OPEN_PAR:
-        return subExpr();
+        factor->setSubExpr(subExpr());
+        break;
+
     case OP_UNARY_NOT:
     case OP_ADD_SUB:
-        return unary();
+        factor->setUnary(unary());
+        break;
+
     case KEY_PAD_RANDI:
-        return padRandI();
+        factor->setRandi(padRandI());
+        break;
+
     default:
         cout << "Syntax Error: Expected 1 of the following: litera, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
         exit(EXIT_FAILURE);
     }
+
+    return factor;
 }
 
-ASTNode *Parser::term()
+ASTResultExpr *Parser::term()
 {
-    // nextToken();
-    ASTNode *f;
-    ASTBinOp *binop;
-    vector<ASTNode *> binops{};
+    ASTResultExpr *f = new ASTResultExpr();
+    ASTBinOp *binop = nullptr;
+    ASTBinOp *binop2 = nullptr;
 
-    f = factor();
+    f->setFactor(factor());
 
     while (peekToken().type == OP_MUL_MUL || peekToken().type == OP_MUL_DIV || peekToken().type == OP_MUL_AND)
     {
-        // creates a vector of binary operation nodes where the value of the node is one of the mul operations
-        // and the children are the factors on which the operations happen
+        // if there is for example 5 * 7 / 3 then you would return:
+        // BinOp(/, BinOp(*, 5, 7), 3))
+
         nextToken();
+        string op = currentToken.lexeme;
+        ASTResultExpr *f2 = new ASTResultExpr();
 
-        binop = new ASTBinOp(currentToken.lexeme, f, f = factor());
-        binops.push_back(binop);
+        if (binop2 == nullptr)
+        {
+            f2->setFactor(factor());
+            binop = new ASTBinOp(op, f, f2);
+
+            binop2 = binop;
+            continue;
+        }
+
+        f = new ASTResultExpr();
+        f->setBinOp(binop2);
+        f2->setFactor(factor());
+        binop = new ASTBinOp(op, f, f2);
     }
 
-    if (binops.size() == 0)
-    {
-        vector<ASTNode *> factors{f};
-        return new ASTTerm(factors);
-    }
+    if (binop == nullptr)
+        return f;
 
-    return new ASTTerm(binops);
+    f = new ASTResultExpr();
+    f->setBinOp(binop);
+
+    return f;
 }
 
-ASTNode *Parser::simpleExpr()
+ASTResultExpr *Parser::simpleExpr()
 {
-    // nextToken();
-    ASTNode *t;
-    ASTBinOp *binop;
-    vector<ASTNode *> binops{};
-
-    t = term();
+    ASTResultExpr *t = term();
+    ASTBinOp *binop = nullptr;
+    ASTBinOp *binop2 = nullptr;
 
     while (peekToken().type == OP_ADD_ADD || peekToken().type == OP_ADD_SUB || peekToken().type == OP_ADD_OR)
     {
+        // Case: 5 + 3 - 4 + 7
+
         nextToken();
+        string op = currentToken.lexeme;
+        ASTResultExpr *t2 = new ASTResultExpr();
 
-        binop = new ASTBinOp(currentToken.lexeme, t, t = term());
-        binops.push_back(binop);
+        if (binop2 == nullptr)
+        {
+            t2 = term();
+            binop = new ASTBinOp(op, t, t2);
+
+            binop2 = binop;
+            continue;
+        }
+
+        t = new ASTResultExpr();
+        t->setBinOp(binop2);
+        t2 = term();
+        binop = new ASTBinOp(op, t, t2);
+        binop2 = binop;
     }
 
-    if (binops.size() == 0)
-    {
-        vector<ASTNode *> terms{t};
-        return new ASTTerm(terms);
-    }
+    if (binop == nullptr)
+        return t;
 
-    return new ASTSimpleExpr(binops);
+    t = new ASTResultExpr();
+    t->setBinOp(binop);
+
+    return t;
 }
 
-ASTNode *Parser::expr()
+ASTExpr *Parser::expr()
 {
-    // nextToken(); - this will be handled on later in the factor()
-    ASTNode *se;
-    ASTBinOp *cond;
-    vector<ASTNode *> conds{};
-
-    se = simpleExpr();
+    ASTResultExpr *se = simpleExpr();
+    ASTBinOp *binop = nullptr;
+    ASTBinOp *binop2 = nullptr;
 
     while (peekToken().type == OP_REL_EQUAL || peekToken().type == OP_REL_NOT_EQUAL || peekToken().type == OP_REL_GREAT || peekToken().type == OP_REL_LESS || peekToken().type == OP_REL_GREAT_EQ || peekToken().type == OP_REL_LESS_EQ)
     {
-        nextToken(); // - consuming the relational operator
+        nextToken();
+        string op = currentToken.lexeme;
+        ASTResultExpr *se2 = new ASTResultExpr();
 
-        cond = new ASTBinOp(currentToken.lexeme, se, se = factor());
-        conds.push_back(cond);
+        if (binop2 == nullptr)
+        {
+            se2 = simpleExpr();
+            binop = new ASTBinOp(op, se, se2);
+
+            binop2 = binop;
+            continue;
+        }
+
+        se = new ASTResultExpr();
+        se->setBinOp(binop2);
+        se2 = simpleExpr();
+        binop = new ASTBinOp(op, se, se2);
+        binop2 = binop;
     }
 
-    if (conds.size() == 0)
-    {
-        vector<ASTNode *> ses{se};
-        return new ASTTerm(ses);
-    }
+    if (binop == nullptr)
+        return new ASTExpr(se);
 
-    return new ASTSimpleExpr(conds);
+    se = new ASTResultExpr();
+    se->setBinOp(binop);
+
+    return new ASTExpr(se);
 }
 
 ASTNode *Parser::assignment()
@@ -641,9 +702,9 @@ ASTNode *Parser::formalParam()
         cout << "Syntax Error: Expected a type" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTNode *type = new ASTType(currentToken.lexeme);
+    string t = currentToken.lexeme;
 
-    return new ASTFormalParam(id, type);
+    return new ASTFormalParam(id, t);
 }
 
 ASTNode *Parser::formalParams()
@@ -706,7 +767,7 @@ ASTNode *Parser::funDec()
         cout << "Syntax Error: Missing type" << endl;
         exit(EXIT_FAILURE);
     }
-    ASTType *t = new ASTType(currentToken.lexeme);
+    string t = currentToken.lexeme;
 
     ASTNode *b = block();
 

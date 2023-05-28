@@ -18,10 +18,12 @@ private:
     {
         this->currentToken = this->scan->getNextToken();
     }
+
     void prevToken()
     {
         this->currentToken = this->scan->rollBackToken();
     }
+
     token peekToken()
     {
         return this->scan->peekNextToken();
@@ -43,10 +45,12 @@ private:
             false;
         }
     }
+
     bool isId(token t)
     {
         return t.type == IDENTIFIER ? true : false;
     }
+
     bool isUnary(token t)
     {
         return t.type == OP_UNARY_NOT || t.type == OP_ADD_SUB ? true : false;
@@ -62,38 +66,43 @@ public:
 
     bool isType(token t);
     ASTNode *lit();
-    ASTNode *intLit();
-    ASTNode *floatLit();
-    ASTNode *colLit();
-    ASTNode *boolLit();
-    ASTNode *padLit();
-    ASTNode *padRead();
-    ASTNode *padRandI();
-    ASTNode *actualParams();
-    ASTNode *funCall();
-    ASTNode *subExpr();
-    ASTNode *unary();
-    ASTNode *factor();
-    ASTNode *term();
-    ASTNode *simpleExpr();
-    ASTNode *expr();
-    ASTNode *assignment();
-    ASTNode *varDec();
+    ASTIntLit *intLit();
+    ASTFloatLit *floatLit();
+    ASTColourLit *colLit();
+    ASTBoolLit *boolLit();
+    //! ASTNode *padLit();
+    ASTPadH *padH();
+    ASTPadW *padW();
+    ASTReadStmnt *padRead();
+    ASTRandiStmnt *padRandI();
+    ASTParams *actualParams();
+    ASTFunCall *funCall();
+    ASTExpr *subExpr();
+    ASTUnaryOp *unary();
+    ASTFactor *factor();
+    ASTResultExpr *term();
+    ASTResultExpr *simpleExpr();
+    ASTExpr *expr();
+    ASTAssignment *assignment();
+    ASTVarDecl *varDec();
+
     // statements
-    ASTNode *printStmnt();
-    ASTNode *delayStmnt();
-    ASTNode *pixelStmnt();
-    ASTNode *rtrnStmnt();
-    ASTNode *ifStmnt();
-    ASTNode *forStmnt();
-    ASTNode *whileStmnt();
-    ASTNode *formalParam();
-    ASTNode *formalParams();
-    ASTNode *funDec();
-    ASTNode *statement();
+    ASTPrintStmnt *printStmnt();
+    ASTDelayStmnt *delayStmnt();
+    ASTPixelStmnt *pixelStmnt();
+    ASTRtrnStmnt *rtrnStmnt();
+    ASTIfStmn *ifStmnt();
+    ASTFor *forStmnt();
+    ASTWhile *whileStmnt();
+    ASTFormalParam *formalParam();
+    ASTFormalParams *formalParams();
+    ASTFunDec *funDec();
+    ASTStatement *statement();
+
     // groups of statements
-    ASTNode *block();
-    ASTNode *program();
+    ASTBlock *block();
+    ASTProgram *program();
+
     // parsing function (wrapper for program())
     void parse();
 };
