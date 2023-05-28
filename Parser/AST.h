@@ -3,23 +3,57 @@
 #include "../Scanner/TokenStruct.h"
 #include "../XMLVisitor/XMLVisitor.h"
 
+class ASTNode;
+class ASTResultExpr;
+class ASTId;
+class ASTLit;
+class ASTIntLit;
+class ASTFloatLit;
+class ASTColourLit;
+class ASTBoolLit;
+class ASTPadH;
+class ASTPadW;
+class ASTBinOp;
+class ASTUnaryOp;
+class ASTProgram;
+class ASTBlock;
+class ASTVarDecl;
+class ASTIfStmn;
+class ASTIfBody;
+class ASTElseBody;
+class ASTWhile;
+class ASTFor;
+class ASTFunDec;
+class ASTFunCall;
+class ASTParams;
+class ASTFormalParam;
+class ASTFormalParams;
+class ASTPrintStmnt;
+class ASTRandiStmnt;
+class ASTPixelStmnt;
+class ASTDelayStmnt;
+class ASTReadStmnt;
+class ASTFactor;
+class ASTTerm;
+class ASTSimpleExpr;
+class ASTExpr;
+class ASTAssignment;
+class ASTRtrnStmnt;
+class ASTStatement;
+
 class ASTNode
 {
 public:
     virtual ~ASTNode() {}
 };
 
-class ASTResultExpr
+class ASTResultExpr : public ASTNode
 {
 public:
     ASTFactor *factor = nullptr;
     ASTBinOp *binop = nullptr;
 
-    ~ASTResultExpr()
-    {
-        delete factor;
-        delete binop;
-    }
+    virtual ~ASTResultExpr() override;
 
     void setFactor(ASTFactor *factor)
     {
@@ -55,13 +89,7 @@ public:
 
     ASTLit() {}
 
-    virtual ~ASTLit() override
-    {
-        delete intl;
-        delete floatl;
-        delete colourl;
-        delete booll;
-    }
+    virtual ~ASTLit() override;
 
     // setters
     void setIntL(ASTIntLit *intl)
@@ -180,11 +208,7 @@ public:
     ASTBinOp(string op, ASTResultExpr *l, ASTResultExpr *r)
         : op(op), left(l), right(r) {}
 
-    virtual ~ASTBinOp() override
-    {
-        delete left;
-        delete right;
-    }
+    virtual ~ASTBinOp() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -200,10 +224,7 @@ public:
 
     ASTUnaryOp(string op, ASTExpr *expr) : op(op), expr(expr) {}
 
-    virtual ~ASTUnaryOp() override
-    {
-        delete expr;
-    }
+    virtual ~ASTUnaryOp() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -218,13 +239,7 @@ public:
 
     ASTProgram(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
 
-    virtual ~ASTProgram() override
-    {
-        for (int i = 0; i < stmnts.size(); i++)
-        {
-            delete stmnts[i];
-        }
-    }
+    virtual ~ASTProgram() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -239,13 +254,7 @@ public:
 
     ASTBlock(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
 
-    virtual ~ASTBlock() override
-    {
-        for (int i = 0; i < stmnts.size(); i++)
-        {
-            delete stmnts[i];
-        }
-    }
+    virtual ~ASTBlock() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -263,11 +272,7 @@ public:
     ASTVarDecl(ASTId *id, ASTExpr *init, string type)
         : id(id), init(init), type(type) {}
 
-    virtual ~ASTVarDecl() override
-    {
-        delete id;
-        delete init;
-    }
+    virtual ~ASTVarDecl() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -285,12 +290,7 @@ public:
     ASTIfStmn(ASTExpr *cond, ASTIfBody *ifbody, ASTElseBody *elsebody = nullptr)
         : cond(cond), ifbody(ifbody), elsebody(elsebody) {}
 
-    virtual ~ASTIfStmn() override
-    {
-        delete cond;
-        delete ifbody;
-        delete elsebody;
-    }
+    virtual ~ASTIfStmn() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -305,13 +305,7 @@ public:
 
     ASTIfBody(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
 
-    virtual ~ASTIfBody() override
-    {
-        for (int i = 0; i < stmnts.size(); i++)
-        {
-            delete stmnts[i];
-        }
-    }
+    virtual ~ASTIfBody() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -326,13 +320,7 @@ public:
 
     ASTElseBody(vector<ASTStatement *> stmnts) : stmnts(stmnts) {}
 
-    virtual ~ASTElseBody() override
-    {
-        for (int i = 0; i < stmnts.size(); i++)
-        {
-            delete stmnts[i];
-        }
-    }
+    virtual ~ASTElseBody() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -348,11 +336,7 @@ public:
 
     ASTWhile(ASTExpr *condtn, ASTBlock *stmnts) : condtn(condtn), stmnts(stmnts) {}
 
-    virtual ~ASTWhile() override
-    {
-        delete condtn;
-        delete stmnts;
-    }
+    virtual ~ASTWhile() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -372,13 +356,7 @@ public:
            ASTAssignment *assignment = nullptr, ASTBlock *block = nullptr)
         : vardec(vardec), expr(expr), assignment(assignment), block(block) {}
 
-    virtual ~ASTFor() override
-    {
-        delete vardec;
-        delete expr;
-        delete assignment;
-        delete block;
-    }
+    virtual ~ASTFor() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -397,12 +375,7 @@ public:
     ASTFunDec(ASTId *id, ASTFormalParams *params, string rtrntype, ASTBlock *block)
         : id(id), params(params), rtrntype(rtrntype), block(block) {}
 
-    virtual ~ASTFunDec() override
-    {
-        delete id;
-        delete params;
-        delete block;
-    }
+    virtual ~ASTFunDec() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -418,11 +391,7 @@ public:
 
     ASTFunCall(ASTId *id, ASTParams *params) : id(id), params(params) {}
 
-    virtual ~ASTFunCall() override
-    {
-        delete id;
-        delete params;
-    }
+    virtual ~ASTFunCall() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -437,13 +406,7 @@ public:
 
     ASTParams(vector<ASTExpr *> expressions) : expressions(expressions) {}
 
-    virtual ~ASTParams() override
-    {
-        for (int i = 0; i < expressions.size(); i++)
-        {
-            delete expressions[i];
-        }
-    }
+    virtual ~ASTParams() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -459,10 +422,7 @@ public:
 
     ASTFormalParam(ASTId *id, string type) : id(id), type(type) {}
 
-    virtual ~ASTFormalParam() override
-    {
-        delete id;
-    }
+    virtual ~ASTFormalParam() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -477,13 +437,7 @@ public:
 
     ASTFormalParams(vector<ASTFormalParam *> params) : params(params) {}
 
-    virtual ~ASTFormalParams() override
-    {
-        for (int i = 0; i < params.size(); i++)
-        {
-            delete params[i];
-        }
-    }
+    virtual ~ASTFormalParams() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -498,10 +452,7 @@ public:
 
     ASTPrintStmnt(ASTExpr *expr) : expr(expr) {}
 
-    virtual ~ASTPrintStmnt() override
-    {
-        delete expr;
-    }
+    virtual ~ASTPrintStmnt() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -516,10 +467,7 @@ public:
 
     ASTRandiStmnt(ASTExpr *expr) : expr(expr) {}
 
-    virtual ~ASTRandiStmnt() override
-    {
-        delete expr;
-    }
+    virtual ~ASTRandiStmnt() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -540,14 +488,7 @@ public:
                   ASTExpr *expr1 = nullptr, ASTExpr *expr2 = nullptr)
         : pixel(pixel), amount(amount), col(col) {}
 
-    virtual ~ASTPixelStmnt() override
-    {
-        delete pixel;
-        delete amount;
-        delete col;
-        delete expr1;
-        delete expr2;
-    }
+    virtual ~ASTPixelStmnt() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -562,10 +503,7 @@ public:
 
     ASTDelayStmnt(ASTExpr *expr) : expr(expr) {}
 
-    virtual ~ASTDelayStmnt() override
-    {
-        delete expr;
-    }
+    virtual ~ASTDelayStmnt() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -581,11 +519,7 @@ public:
 
     ASTReadStmnt(ASTExpr *expr1, ASTExpr *expr2) : expr1(expr1), expr2(expr2) {}
 
-    virtual ~ASTReadStmnt() override
-    {
-        delete expr1;
-        delete expr2;
-    }
+    virtual ~ASTReadStmnt() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -608,18 +542,7 @@ public:
 
     ASTFactor() {}
 
-    virtual ~ASTFactor() override
-    {
-        delete lit;
-        delete id;
-        delete fncall;
-        delete subexpr;
-        delete unary;
-        delete randi;
-        delete padh;
-        delete padw;
-        delete read;
-    }
+    virtual ~ASTFactor() override;
 
     // setters
     void setLit(ASTLit *lit)
@@ -675,13 +598,7 @@ public:
 
     ASTTerm(vector<ASTFactor *> factors) : factors(factors) {}
 
-    virtual ~ASTTerm() override
-    {
-        for (int i = 0; i < factors.size(); i++)
-        {
-            delete factors[i];
-        }
-    }
+    virtual ~ASTTerm() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -696,13 +613,7 @@ public:
 
     ASTSimpleExpr(vector<ASTTerm *> terms) : terms(terms) {}
 
-    virtual ~ASTSimpleExpr() override
-    {
-        for (int i = 0; i < terms.size(); i++)
-        {
-            delete terms[i];
-        }
-    }
+    virtual ~ASTSimpleExpr() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -717,10 +628,7 @@ public:
 
     ASTExpr(ASTResultExpr *expr) : expr(expr) {}
 
-    virtual ~ASTExpr() override
-    {
-        delete expr;
-    }
+    virtual ~ASTExpr() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -736,11 +644,7 @@ public:
 
     ASTAssignment(ASTId *id, ASTExpr *expr) : id(id), expr(expr) {}
 
-    virtual ~ASTAssignment() override
-    {
-        delete id;
-        delete expr;
-    }
+    virtual ~ASTAssignment() override;
 
     void accept(XMLVisitor *visitor)
     {
@@ -755,10 +659,7 @@ public:
 
     ASTRtrnStmnt(ASTExpr *expr) : expr(expr) {}
 
-    virtual ~ASTRtrnStmnt() override
-    {
-        delete expr;
-    }
+    virtual ~ASTRtrnStmnt() override;
 
     // void accept
 };
@@ -780,20 +681,7 @@ public:
 
     ASTStatement() {}
 
-    virtual ~ASTStatement() override
-    {
-        delete vardec;
-        delete assi;
-        delete print;
-        delete delay;
-        delete pixel;
-        delete ifstmnt;
-        delete forstmnt;
-        delete whilestmnt;
-        delete rtrn;
-        delete fundec;
-        delete block;
-    }
+    virtual ~ASTStatement() override;
 
     // setters
     void setVarDec(ASTVarDecl *vardec)
@@ -851,3 +739,211 @@ public:
         this->block = block;
     }
 };
+
+ASTResultExpr::~ASTResultExpr()
+{
+    delete factor;
+    delete binop;
+}
+
+ASTLit::~ASTLit()
+{
+    delete intl;
+    delete floatl;
+    delete colourl;
+    delete booll;
+}
+
+ASTBinOp::~ASTBinOp()
+{
+    delete left;
+    delete right;
+}
+
+ASTUnaryOp::~ASTUnaryOp()
+{
+    delete expr;
+}
+
+ASTProgram::~ASTProgram()
+{
+    for (int i = 0; i < stmnts.size(); i++)
+    {
+        delete stmnts[i];
+    }
+}
+
+ASTBlock::~ASTBlock()
+{
+    for (int i = 0; i < stmnts.size(); i++)
+    {
+        delete stmnts[i];
+    }
+}
+
+ASTVarDecl::~ASTVarDecl()
+{
+    delete id;
+    delete init;
+}
+
+ASTIfStmn::~ASTIfStmn()
+{
+    delete cond;
+    delete ifbody;
+    delete elsebody;
+}
+
+ASTIfBody::~ASTIfBody()
+{
+    for (int i = 0; i < stmnts.size(); i++)
+    {
+        delete stmnts[i];
+    }
+}
+
+ASTElseBody::~ASTElseBody()
+{
+    for (int i = 0; i < stmnts.size(); i++)
+    {
+        delete stmnts[i];
+    }
+}
+
+ASTWhile::~ASTWhile()
+{
+    delete condtn;
+    delete stmnts;
+}
+
+ASTFor::~ASTFor()
+{
+    delete vardec;
+    delete expr;
+    delete assignment;
+    delete block;
+}
+
+ASTFunDec::~ASTFunDec()
+{
+    delete id;
+    delete params;
+    delete block;
+}
+
+ASTFunCall::~ASTFunCall()
+{
+    delete id;
+    delete params;
+}
+
+ASTParams::~ASTParams()
+{
+    for (int i = 0; i < expressions.size(); i++)
+    {
+        delete expressions[i];
+    }
+}
+
+ASTFormalParam::~ASTFormalParam()
+{
+    delete id;
+}
+
+ASTFormalParams::~ASTFormalParams()
+{
+    for (int i = 0; i < params.size(); i++)
+    {
+        delete params[i];
+    }
+}
+
+ASTPrintStmnt::~ASTPrintStmnt()
+{
+    delete expr;
+}
+
+ASTRandiStmnt::~ASTRandiStmnt()
+{
+    delete expr;
+}
+
+ASTPixelStmnt::~ASTPixelStmnt()
+{
+    delete pixel;
+    delete amount;
+    delete col;
+    delete expr1;
+    delete expr2;
+}
+
+ASTDelayStmnt::~ASTDelayStmnt()
+{
+    delete expr;
+}
+
+ASTReadStmnt::~ASTReadStmnt()
+{
+    delete expr1;
+    delete expr2;
+}
+
+ASTFactor::~ASTFactor()
+{
+    delete lit;
+    delete id;
+    delete fncall;
+    delete subexpr;
+    delete unary;
+    delete randi;
+    delete padh;
+    delete padw;
+    delete read;
+}
+
+ASTTerm::~ASTTerm()
+{
+    for (int i = 0; i < factors.size(); i++)
+    {
+        delete factors[i];
+    }
+}
+
+ASTSimpleExpr::~ASTSimpleExpr()
+{
+    for (int i = 0; i < terms.size(); i++)
+    {
+        delete terms[i];
+    }
+}
+
+ASTExpr::~ASTExpr()
+{
+    delete expr;
+}
+
+ASTAssignment::~ASTAssignment()
+{
+    delete id;
+    delete expr;
+}
+
+ASTRtrnStmnt::~ASTRtrnStmnt()
+{
+    delete expr;
+}
+
+ASTStatement::~ASTStatement()
+{
+    delete vardec;
+    delete assi;
+    delete print;
+    delete delay;
+    delete pixel;
+    delete ifstmnt;
+    delete forstmnt;
+    delete whilestmnt;
+    delete rtrn;
+    delete fundec;
+    delete block;
+}
