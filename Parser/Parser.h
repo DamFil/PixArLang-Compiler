@@ -59,7 +59,7 @@ private:
 public:
     Scanner *scan;
     token currentToken;
-    ASTNode *root{};
+    ASTProgram *root = nullptr;
     Parser(string path);
     Parser(Scanner *scanner);
     ~Parser();
