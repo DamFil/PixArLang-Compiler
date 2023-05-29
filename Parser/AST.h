@@ -64,6 +64,11 @@ public:
     {
         this->binop = binop;
     }
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTId : public ASTNode
@@ -106,6 +111,11 @@ public:
     }
 
     virtual ~ASTLit() override;
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTIntLit : public ASTNode
@@ -171,6 +181,11 @@ class ASTPadH : public ASTNode
 public:
     ASTPadH() {}
     virtual ~ASTPadH() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTPadW : public ASTNode
@@ -178,6 +193,11 @@ class ASTPadW : public ASTNode
 public:
     ASTPadW() {}
     virtual ~ASTPadW() override {}
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTBinOp : public ASTNode
@@ -562,42 +582,41 @@ public:
 
     virtual ~ASTFactor() override;
 
-    // setters
-    void setLit(ASTLit *lit)
-    {
-        this->lit = lit;
-    }
-};
-
-class ASTTerm : public ASTNode
-{
-public:
-    vector<ASTFactor *> factors;
-
-    ASTTerm(vector<ASTFactor *> factors) : factors(factors) {}
-
-    virtual ~ASTTerm() override;
-
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
     }
 };
 
-class ASTSimpleExpr : public ASTNode
-{
-public:
-    vector<ASTTerm *> terms;
-
-    ASTSimpleExpr(vector<ASTTerm *> terms) : terms(terms) {}
-
-    virtual ~ASTSimpleExpr() override;
-
-    void accept(XMLVisitor *visitor)
-    {
-        visitor->visit(this);
-    }
-};
+// class ASTTerm : public ASTNode
+//{
+// public:
+//     vector<ASTFactor *> factors;
+//
+//     ASTTerm(vector<ASTFactor *> factors) : factors(factors) {}
+//
+//     virtual ~ASTTerm() override;
+//
+//     void accept(XMLVisitor *visitor)
+//     {
+//         visitor->visit(this);
+//     }
+// };
+//
+// class ASTSimpleExpr : public ASTNode
+//{
+// public:
+//     vector<ASTTerm *> terms;
+//
+//     ASTSimpleExpr(vector<ASTTerm *> terms) : terms(terms) {}
+//
+//     virtual ~ASTSimpleExpr() override;
+//
+//     void accept(XMLVisitor *visitor)
+//     {
+//         visitor->visit(this);
+//     }
+// };
 
 class ASTExpr : public ASTNode
 {
@@ -639,7 +658,10 @@ public:
 
     virtual ~ASTRtrnStmnt() override;
 
-    // void accept
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 class ASTStatement : public ASTNode
@@ -704,6 +726,11 @@ public:
     }
 
     virtual ~ASTStatement() override;
+
+    void accept(XMLVisitor *visitor)
+    {
+        visitor->visit(this);
+    }
 };
 
 // inline to avoid multiple defenition errors - compiler replaces function call with the function body directly
@@ -868,21 +895,21 @@ inline ASTFactor::~ASTFactor()
     delete read;
 }
 
-inline ASTTerm::~ASTTerm()
-{
-    for (int i = 0; i < factors.size(); i++)
-    {
-        delete factors[i];
-    }
-}
-
-inline ASTSimpleExpr::~ASTSimpleExpr()
-{
-    for (int i = 0; i < terms.size(); i++)
-    {
-        delete terms[i];
-    }
-}
+// inline ASTTerm::~ASTTerm()
+//{
+//     for (int i = 0; i < factors.size(); i++)
+//     {
+//         delete factors[i];
+//     }
+// }
+//
+// inline ASTSimpleExpr::~ASTSimpleExpr()
+//{
+//     for (int i = 0; i < terms.size(); i++)
+//     {
+//         delete terms[i];
+//     }
+// }
 
 inline ASTExpr::~ASTExpr()
 {
