@@ -88,29 +88,24 @@ public:
     ASTBoolLit *booll = nullptr;
 
     ASTLit() {}
-
-    virtual ~ASTLit() override;
-
-    // setters
-    void setIntL(ASTIntLit *intl)
+    ASTLit(ASTIntLit *intl)
     {
         this->intl = intl;
     }
-
-    void setFloatL(ASTFloatLit *floatl)
+    ASTLit(ASTFloatLit *floatl)
     {
         this->floatl = floatl;
     }
-
-    void setColourL(ASTColourLit *colourl)
+    ASTLit(ASTColourLit *colourl)
     {
         this->colourl = colourl;
     }
-
-    void setBoolL(ASTBoolLit *booll)
+    ASTLit(ASTBoolLit *booll)
     {
         this->booll = booll;
     }
+
+    virtual ~ASTLit() override;
 };
 
 class ASTIntLit : public ASTNode
@@ -184,19 +179,6 @@ public:
     ASTPadW() {}
     virtual ~ASTPadW() override {}
 };
-
-// class ASTPadLit : public ASTNode
-//{
-// public:
-//     string padl;
-//     ASTPadLit(string pl) : padl(pl) {}
-//     virtual ~ASTPadLit() override {}
-//
-//     void accept(XMLVisitor *visitor)
-//     {
-//         visitor->visit(this);
-//     }
-// };
 
 class ASTBinOp : public ASTNode
 {
@@ -541,6 +523,42 @@ public:
     ASTReadStmnt *read = nullptr;
 
     ASTFactor() {}
+    ASTFactor(ASTLit *lit)
+    {
+        this->lit = lit;
+    }
+    ASTFactor(ASTId *id)
+    {
+        this->id = id;
+    }
+    ASTFactor(ASTFunCall *fncall)
+    {
+        this->fncall = fncall;
+    }
+    ASTFactor(ASTExpr *subexpr)
+    {
+        this->subexpr = subexpr;
+    }
+    ASTFactor(ASTUnaryOp *unary)
+    {
+        this->unary = unary;
+    }
+    ASTFactor(ASTRandiStmnt *randi)
+    {
+        this->randi = randi;
+    }
+    ASTFactor(ASTPadH *padh)
+    {
+        this->padh = padh;
+    }
+    ASTFactor(ASTPadW *padw)
+    {
+        this->padw = padw;
+    }
+    ASTFactor(ASTReadStmnt *read)
+    {
+        this->read = read;
+    }
 
     virtual ~ASTFactor() override;
 
@@ -548,46 +566,6 @@ public:
     void setLit(ASTLit *lit)
     {
         this->lit = lit;
-    }
-
-    void setId(ASTId *id)
-    {
-        this->id = id;
-    }
-
-    void setFnCall(ASTFunCall *fncall)
-    {
-        this->fncall = fncall;
-    }
-
-    void setSubExpr(ASTExpr *subexpr)
-    {
-        this->subexpr = subexpr;
-    }
-
-    void setUnary(ASTUnaryOp *unary)
-    {
-        this->unary = unary;
-    }
-
-    void setRandi(ASTRandiStmnt *randi)
-    {
-        this->randi = randi;
-    }
-
-    void setPadH(ASTPadH *padh)
-    {
-        this->padh = padh;
-    }
-
-    void setPadW(ASTPadW *padw)
-    {
-        this->padw = padw;
-    }
-
-    void setRead(ASTReadStmnt *read)
-    {
-        this->read = read;
     }
 };
 
@@ -680,73 +658,62 @@ public:
     ASTBlock *block = nullptr;
 
     ASTStatement() {}
-
-    virtual ~ASTStatement() override;
-
-    // setters
-    void setVarDec(ASTVarDecl *vardec)
+    ASTStatement(ASTVarDecl *vardec)
     {
         this->vardec = vardec;
     }
-
-    void setAssi(ASTAssignment *assi)
+    ASTStatement(ASTAssignment *assi)
     {
         this->assi = assi;
     }
-
-    void setPrint(ASTPrintStmnt *print)
+    ASTStatement(ASTPrintStmnt *print)
     {
         this->print = print;
     }
-
-    void setDelay(ASTDelayStmnt *delay)
+    ASTStatement(ASTDelayStmnt *delay)
     {
         this->delay = delay;
     }
-
-    void setPixel(ASTPixelStmnt *pixel)
+    ASTStatement(ASTPixelStmnt *pixel)
     {
         this->pixel = pixel;
     }
-
-    void setIfStmnt(ASTIfStmn *ifstmnt)
+    ASTStatement(ASTIfStmn *ifstmnt)
     {
         this->ifstmnt = ifstmnt;
     }
-
-    void setForStmnt(ASTFor *forstmnt)
+    ASTStatement(ASTFor *forstmnt)
     {
         this->forstmnt = forstmnt;
     }
-
-    void setWhileStmnt(ASTWhile *whilestmnt)
+    ASTStatement(ASTWhile *whilestmnt)
     {
         this->whilestmnt = whilestmnt;
     }
-
-    void setRtrn(ASTRtrnStmnt *rtrn)
+    ASTStatement(ASTRtrnStmnt *rtrn)
     {
         this->rtrn = rtrn;
     }
-
-    void setFunDec(ASTFunDec *fundec)
+    ASTStatement(ASTFunDec *fundec)
     {
         this->fundec = fundec;
     }
-
-    void setBlock(ASTBlock *block)
+    ASTStatement(ASTBlock *block)
     {
         this->block = block;
     }
+
+    virtual ~ASTStatement() override;
 };
 
-ASTResultExpr::~ASTResultExpr()
+// inline to avoid multiple defenition errors - compiler replaces function call with the function body directly
+inline ASTResultExpr::~ASTResultExpr()
 {
     delete factor;
     delete binop;
 }
 
-ASTLit::~ASTLit()
+inline ASTLit::~ASTLit()
 {
     delete intl;
     delete floatl;
@@ -754,18 +721,18 @@ ASTLit::~ASTLit()
     delete booll;
 }
 
-ASTBinOp::~ASTBinOp()
+inline ASTBinOp::~ASTBinOp()
 {
     delete left;
     delete right;
 }
 
-ASTUnaryOp::~ASTUnaryOp()
+inline ASTUnaryOp::~ASTUnaryOp()
 {
     delete expr;
 }
 
-ASTProgram::~ASTProgram()
+inline ASTProgram::~ASTProgram()
 {
     for (int i = 0; i < stmnts.size(); i++)
     {
@@ -773,7 +740,7 @@ ASTProgram::~ASTProgram()
     }
 }
 
-ASTBlock::~ASTBlock()
+inline ASTBlock::~ASTBlock()
 {
     for (int i = 0; i < stmnts.size(); i++)
     {
@@ -781,20 +748,20 @@ ASTBlock::~ASTBlock()
     }
 }
 
-ASTVarDecl::~ASTVarDecl()
+inline ASTVarDecl::~ASTVarDecl()
 {
     delete id;
     delete init;
 }
 
-ASTIfStmn::~ASTIfStmn()
+inline ASTIfStmn::~ASTIfStmn()
 {
     delete cond;
     delete ifbody;
     delete elsebody;
 }
 
-ASTIfBody::~ASTIfBody()
+inline ASTIfBody::~ASTIfBody()
 {
     for (int i = 0; i < stmnts.size(); i++)
     {
@@ -802,7 +769,7 @@ ASTIfBody::~ASTIfBody()
     }
 }
 
-ASTElseBody::~ASTElseBody()
+inline ASTElseBody::~ASTElseBody()
 {
     for (int i = 0; i < stmnts.size(); i++)
     {
@@ -810,13 +777,13 @@ ASTElseBody::~ASTElseBody()
     }
 }
 
-ASTWhile::~ASTWhile()
+inline ASTWhile::~ASTWhile()
 {
     delete condtn;
     delete stmnts;
 }
 
-ASTFor::~ASTFor()
+inline ASTFor::~ASTFor()
 {
     delete vardec;
     delete expr;
@@ -824,20 +791,20 @@ ASTFor::~ASTFor()
     delete block;
 }
 
-ASTFunDec::~ASTFunDec()
+inline ASTFunDec::~ASTFunDec()
 {
     delete id;
     delete params;
     delete block;
 }
 
-ASTFunCall::~ASTFunCall()
+inline ASTFunCall::~ASTFunCall()
 {
     delete id;
     delete params;
 }
 
-ASTParams::~ASTParams()
+inline ASTParams::~ASTParams()
 {
     for (int i = 0; i < expressions.size(); i++)
     {
@@ -845,12 +812,12 @@ ASTParams::~ASTParams()
     }
 }
 
-ASTFormalParam::~ASTFormalParam()
+inline ASTFormalParam::~ASTFormalParam()
 {
     delete id;
 }
 
-ASTFormalParams::~ASTFormalParams()
+inline ASTFormalParams::~ASTFormalParams()
 {
     for (int i = 0; i < params.size(); i++)
     {
@@ -858,17 +825,17 @@ ASTFormalParams::~ASTFormalParams()
     }
 }
 
-ASTPrintStmnt::~ASTPrintStmnt()
+inline ASTPrintStmnt::~ASTPrintStmnt()
 {
     delete expr;
 }
 
-ASTRandiStmnt::~ASTRandiStmnt()
+inline ASTRandiStmnt::~ASTRandiStmnt()
 {
     delete expr;
 }
 
-ASTPixelStmnt::~ASTPixelStmnt()
+inline ASTPixelStmnt::~ASTPixelStmnt()
 {
     delete pixel;
     delete amount;
@@ -877,18 +844,18 @@ ASTPixelStmnt::~ASTPixelStmnt()
     delete expr2;
 }
 
-ASTDelayStmnt::~ASTDelayStmnt()
+inline ASTDelayStmnt::~ASTDelayStmnt()
 {
     delete expr;
 }
 
-ASTReadStmnt::~ASTReadStmnt()
+inline ASTReadStmnt::~ASTReadStmnt()
 {
     delete expr1;
     delete expr2;
 }
 
-ASTFactor::~ASTFactor()
+inline ASTFactor::~ASTFactor()
 {
     delete lit;
     delete id;
@@ -901,7 +868,7 @@ ASTFactor::~ASTFactor()
     delete read;
 }
 
-ASTTerm::~ASTTerm()
+inline ASTTerm::~ASTTerm()
 {
     for (int i = 0; i < factors.size(); i++)
     {
@@ -909,7 +876,7 @@ ASTTerm::~ASTTerm()
     }
 }
 
-ASTSimpleExpr::~ASTSimpleExpr()
+inline ASTSimpleExpr::~ASTSimpleExpr()
 {
     for (int i = 0; i < terms.size(); i++)
     {
@@ -917,23 +884,23 @@ ASTSimpleExpr::~ASTSimpleExpr()
     }
 }
 
-ASTExpr::~ASTExpr()
+inline ASTExpr::~ASTExpr()
 {
     delete expr;
 }
 
-ASTAssignment::~ASTAssignment()
+inline ASTAssignment::~ASTAssignment()
 {
     delete id;
     delete expr;
 }
 
-ASTRtrnStmnt::~ASTRtrnStmnt()
+inline ASTRtrnStmnt::~ASTRtrnStmnt()
 {
     delete expr;
 }
 
-ASTStatement::~ASTStatement()
+inline ASTStatement::~ASTStatement()
 {
     delete vardec;
     delete assi;

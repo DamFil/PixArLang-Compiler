@@ -200,69 +200,92 @@ ASTUnaryOp *Parser::unary()
 
 ASTFactor *Parser::factor()
 {
-    ASTFactor *factor = new ASTFactor();
+    ASTFactor *factor = nullptr;
 
     switch (peekToken().type)
     {
     case INT_LIT:
-        ASTLit *lit = new ASTLit();
-        lit->setIntL(new ASTIntLit(currentToken.lexeme));
-        factor->setLit(lit);
+    {
+        nextToken();
+        ASTLit *lit = new ASTLit(new ASTIntLit(currentToken.lexeme));
+        factor = new ASTFactor(lit);
         break;
+    }
 
     case FLOAT_LIT:
-        ASTLit *lit = new ASTLit();
-        lit->setFloatL(new ASTFloatLit(currentToken.lexeme));
-        factor->setLit(lit);
+    {
+        nextToken();
+        ASTLit *lit = new ASTLit(new ASTFloatLit(currentToken.lexeme));
+        factor = new ASTFactor(lit);
         break;
+    }
 
     case COL_LIT:
-        ASTLit *lit = new ASTLit();
-        lit->setColourL(new ASTColourLit(currentToken.lexeme));
-        factor->setLit(lit);
+    {
+        nextToken();
+        ASTLit *lit = new ASTLit(new ASTColourLit(currentToken.lexeme));
+        factor = new ASTFactor(lit);
         break;
+    }
 
     case KEY_BOOL_LIT_F:
     case KEY_BOOL_LIT_T:
-        ASTLit *lit = new ASTLit();
-        lit->setBoolL(new ASTBoolLit(currentToken.lexeme));
-        factor->setLit(lit);
+    {
+        nextToken();
+        ASTLit *lit = new ASTLit(new ASTBoolLit(currentToken.lexeme));
+        factor = new ASTFactor(lit);
         break;
+    }
 
     case KEY_PAD_W:
-        factor->setPadW(new ASTPadW());
+    {
+        nextToken();
+
+        factor = new ASTFactor(new ASTPadW());
         break;
+    }
 
     case KEY_PAD_H:
-        factor->setPadH(new ASTPadH());
+    {
+        nextToken();
+        factor = new ASTFactor(new ASTPadH());
         break;
+    }
 
     case IDENTIFIER:
+    {
         nextToken();
         if (peekToken().type == PUNCT_OPEN_PAR)
         {
             prevToken();
-            factor->setFnCall(funCall());
+            factor = new ASTFactor(funCall());
         }
         else
-            factor->setId(new ASTId(currentToken.lexeme));
+            factor = new ASTFactor(new ASTId(currentToken.lexeme));
         break;
+    }
 
     case PUNCT_OPEN_PAR:
-        factor->setSubExpr(subExpr());
+    {
+        factor = new ASTFactor(subExpr());
         break;
+    }
 
     case OP_UNARY_NOT:
     case OP_ADD_SUB:
-        factor->setUnary(unary());
+    {
+        factor = new ASTFactor(unary());
         break;
+    }
 
     case KEY_PAD_RANDI:
-        factor->setRandi(padRandI());
+    {
+        factor = new ASTFactor(padRandI());
         break;
+    }
 
     default:
-        cout << "Syntax Error: Expected 1 of the following: litera, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
+        cout << "Syntax Error: Expected 1 of the following: literal, identifer, function call, sub-expression, unary, or a PadRandI" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -782,38 +805,38 @@ ASTStatement *Parser::statement()
     switch (peekToken().type)
     {
     case KEY_VAR_DEC:
-        s->setVarDec(varDec());
+        s = new ASTStatement(varDec());
         break;
     case IDENTIFIER:
-        s->setAssi(assignment());
+        s = new ASTStatement(assignment());
         break;
     case KEY_PRINT:
-        s->setPrint(printStmnt());
+        s = new ASTStatement(printStmnt());
         break;
     case KEY_DELAY:
-        s->setDelay(delayStmnt());
+        s = new ASTStatement(delayStmnt());
         break;
     case KEY_PIX:
     case KEY_PIX_R:
-        s->setPixel(pixelStmnt());
+        s = new ASTStatement(pixelStmnt());
         break;
     case KEY_IF:
-        s->setIfStmnt(ifStmnt());
+        s = new ASTStatement(ifStmnt());
         return s;
     case KEY_FOR:
-        s->setForStmnt(forStmnt());
+        s = new ASTStatement(forStmnt());
         return s;
     case KEY_WHILE:
-        s->setWhileStmnt(whileStmnt());
+        s = new ASTStatement(whileStmnt());
         return s;
     case KEY_RETURN:
-        s->setRtrn(rtrnStmnt());
+        s = new ASTStatement(rtrnStmnt());
         break;
     case KEY_FUN_DEC:
-        s->setFunDec(funDec());
+        s = new ASTStatement(funDec());
         return s;
     case PUNCT_OPEN_CURL:
-        s->setBlock(block());
+        s = new ASTStatement(block());
         return s;
     default:
         cout << "Syntax Error: Statements are not valid" << endl;
