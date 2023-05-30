@@ -2,6 +2,7 @@
 
 #include "../Scanner/TokenStruct.h"
 #include "../XMLVisitor/XMLVisitor.h"
+#include "../SemanticAnalysis/SemVisitor.h"
 
 class ASTNode;
 class ASTResultExpr;
@@ -69,6 +70,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTId : public ASTNode
@@ -81,6 +87,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -116,6 +127,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTIntLit : public ASTNode
@@ -128,6 +144,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -142,6 +163,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTColourLit : public ASTNode
@@ -154,6 +180,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -174,6 +205,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTPadH : public ASTNode
@@ -186,6 +222,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTPadW : public ASTNode
@@ -197,6 +238,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -216,6 +262,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTUnaryOp : public ASTNode
@@ -232,6 +283,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTProgram : public ASTNode
@@ -247,6 +303,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTBlock : public ASTNode
@@ -261,6 +322,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -280,6 +346,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    typeOfIdentifer accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTIfStmn : public ASTNode
@@ -298,6 +369,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTIfBody : public ASTNode
@@ -312,6 +388,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -328,6 +409,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTWhile : public ASTNode
@@ -343,6 +429,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -364,6 +455,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTFunDec : public ASTNode
@@ -383,6 +479,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTFunCall : public ASTNode
@@ -399,6 +500,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTParams : public ASTNode
@@ -413,6 +519,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -430,6 +541,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    typeOfIdentifer accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTFormalParams : public ASTNode
@@ -444,6 +560,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -460,6 +581,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTRandiStmnt : public ASTNode
@@ -474,6 +600,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -496,6 +627,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTDelayStmnt : public ASTNode
@@ -510,6 +646,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -526,6 +667,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -586,6 +732,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTExpr : public ASTNode
@@ -600,6 +751,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -617,6 +773,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
+    }
 };
 
 class ASTRtrnStmnt : public ASTNode
@@ -631,6 +792,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
@@ -700,6 +866,11 @@ public:
     void accept(XMLVisitor *visitor)
     {
         visitor->visit(this);
+    }
+
+    type accept(SemanticVisitor *visitor)
+    {
+        return visitor->visit(this);
     }
 };
 
