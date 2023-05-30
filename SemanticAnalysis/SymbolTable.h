@@ -8,17 +8,35 @@
 
 using namespace std;
 
+typedef enum representationType
+{
+    var,
+    fun,
+    none
+} repr;
+
+class Entity
+{
+public:
+    string scope;
+    string type;
+    repr r; // whether it is a function identifer, or just a variable
+
+    Entity(string scope, string type, repr r) : scope(scope), type(type), r(r) {}
+    ~Entity() {}
+};
+
 class SymbolTable
 {
 private:
     int current, tempCurrent;
-    vector<map<string, string>> nmspaces{};
+    vector<map<string, Entity *>> nmspaces{};
 
 public:
     SymbolTable() : current(0), tempCurrent(0) {}
     ~SymbolTable() {}
 
-    void push(map<string, string> binding)
+    void push(map<string, Entity *> binding)
     {
         nmspaces.push_back(binding);
         ++current;
@@ -30,17 +48,17 @@ public:
         --current;
     }
 
-    string lookup(string key)
+    Entity *lookup(string key)
     {
         if (current == -1)
         {
-            current = nmspaces.size() - 1;
+            current = nmspaces.size() - 1; // resetting it back to the oriignal scope
             cout << "Error: \"" << key << "\" is not declared anywhere." << endl;
-            return "END";
+            return new Entity("END", "END", none);
         }
         try
         {
-            string found = nmspaces.at(current).at(key);
+            Entity *found = nmspaces.at(current).at(key);
             tempCurrent = current;
             current = nmspaces.size() - 1;
             return found;
@@ -52,7 +70,7 @@ public:
         }
     }
 
-    void insert(pair<string, string> newkey)
+    void insert(pair<string, Entity *> newkey)
     {
         lookup(newkey.first);
         if (tempCurrent == current)
