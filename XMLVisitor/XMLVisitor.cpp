@@ -109,7 +109,7 @@ void XMLVisitor::visit(ASTFactor *factor)
     else if (factor->padh != nullptr)
         factor->padh->accept(this);
     else if (factor->padw != nullptr)
-        factor->padh->accept(this);
+        factor->padw->accept(this);
     else if (factor->randi != nullptr)
         factor->randi->accept(this);
     else if (factor->read != nullptr)
