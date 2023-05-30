@@ -488,7 +488,7 @@ public:
 
     ASTPixelStmnt(ASTExpr *pixel, ASTExpr *amount, ASTExpr *col,
                   ASTExpr *expr1 = nullptr, ASTExpr *expr2 = nullptr)
-        : pixel(pixel), amount(amount), col(col) {}
+        : pixel(pixel), amount(amount), col(col), expr1(expr1), expr2(expr2) {}
 
     virtual ~ASTPixelStmnt() override;
 
