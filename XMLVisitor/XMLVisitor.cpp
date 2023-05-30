@@ -93,6 +93,7 @@ void XMLVisitor::visit(ASTAssignment *assi)
     ++indent;
     assi->id->accept(this);
     assi->expr->accept(this);
+    --indent;
 
     printIndent();
     cout << "</Assignment>" << endl;
