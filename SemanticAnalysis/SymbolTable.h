@@ -8,21 +8,35 @@
 
 using namespace std;
 
+typedef enum typeOfIdentifer
+{
+    integer,
+    floater,
+    colour,
+    boolean,
+    pad_height,
+    pad_width,
+    NotAType,
+    ERROR
+} type;
+
 typedef enum representationType
 {
     var,
     fun,
+    param,
     none
 } repr;
 
 class Entity
 {
 public:
+    string name;
     string scope;
-    string type;
+    type t;
     repr r; // whether it is a function identifer, or just a variable
 
-    Entity(string scope, string type, repr r) : scope(scope), type(type), r(r) {}
+    Entity(string name, string scope, type t, repr r) : scope(scope), t(t), r(r) {}
     ~Entity() {}
 };
 
@@ -54,7 +68,8 @@ public:
         {
             current = nmspaces.size() - 1; // resetting it back to the oriignal scope
             cout << "Error: \"" << key << "\" is not declared anywhere." << endl;
-            return new Entity("END", "END", none);
+            // return new Entity("END", "END", NotAType, none); // I call this a fail Entity
+            return nullptr;
         }
         try
         {
@@ -81,5 +96,10 @@ public:
         }
 
         nmspaces.at(current).insert(newkey);
+    }
+
+    int getCurrent()
+    {
+        return this->current;
     }
 };
