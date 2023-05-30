@@ -44,14 +44,14 @@ type SemanticVisitor::visit(ASTBoolLit *booll)
 
 type SemanticVisitor::visit(ASTPadH *padh)
 {
-    typeOfExpression = pad_height;
-    return pad_height;
+    typeOfExpression = integer;
+    return integer;
 }
 
 type SemanticVisitor::visit(ASTPadH *padw)
 {
-    typeOfExpression = pad_width;
-    return pad_width;
+    typeOfExpression = integer;
+    return integer;
 }
 
 type SemanticVisitor::visit(ASTId *id)
@@ -181,4 +181,145 @@ type SemanticVisitor::visit(ASTBinOp *binop)
     }
 
     return t1;
+}
+
+type SemanticVisitor::visit(ASTUnaryOp *unary)
+{
+    type t1 = unary->expr->accept(this);
+    if (t1 == boolean && (unary->op != "not"))
+    {
+        cout << "Cannot use " << unary->op << " on booleans" << endl;
+        return ERROR;
+    }
+    else if (t1 != boolean && (unary->op != "-"))
+    {
+        cout << "Cannot use " << unary->op << " on non-booleans" << endl;
+        return ERROR;
+    }
+
+    return t1;
+}
+
+type SemanticVisitor::visit(ASTDelayStmnt *delay)
+{
+    type t = delay->expr->accept(this);
+    if (t != integer)
+    {
+        cout << "Calling __delay needs to be followed by an expression of type integer" << endl;
+        return ERROR;
+    }
+
+    return t;
+}
+
+type SemanticVisitor::visit(ASTPrintStmnt *print)
+{
+    type t = print->expr->accept(this);
+    if (t != integer)
+    {
+        cout << "Calling __print needs to be followed by an expression of type integer" << endl;
+        return ERROR;
+    }
+
+    return t;
+}
+
+type SemanticVisitor::visit(ASTRandiStmnt *randi)
+{
+    type t = randi->expr->accept(this);
+    if (t != integer)
+    {
+        cout << "Calling __randi needs to be followed by an expression of type integer" << endl;
+        return ERROR;
+    }
+
+    return t;
+}
+
+type SemanticVisitor::visit(ASTReadStmnt *read)
+{
+    type t1 = read->expr1->accept(this);
+    type t2 = read->expr2->accept(this);
+
+    if (t1 != integer || t2 != integer)
+    {
+        cout << "Calling __read needs to be followed by 2 expressions, both of type integer" << endl;
+        return ERROR;
+    }
+
+    return t1;
+}
+
+type SemanticVisitor::visit(ASTPixelStmnt *pixel)
+{
+    type t1 = pixel->col->accept(this);
+    type t2 = pixel->amount->accept(this);
+    type t3 = pixel->col->accept(this);
+
+    if (pixel->expr1 != nullptr && pixel->expr2 != nullptr)
+    {
+        type t4 = pixel->expr1->accept(this);
+        type t5 = pixel->expr2->accept(this);
+
+        if (t1 != integer || t2 != integer ||
+            t3 != integer || t4 != integer ||
+            t5 != colour)
+        {
+            cout << "__pixelr needs to be followed by 5 expressions of types: integer, integer, integer, integer and colour, respectively" << endl;
+            return ERROR;
+        }
+    }
+
+    if (t1 != integer || t2 != integer || t3 != colour)
+    {
+        cout << "__pixel needs to be followed by 3 expressions of types integer, integer and colour respectively" << endl;
+        return ERROR;
+    }
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTStatement *s)
+{
+    if (s->assi != nullptr)
+        return s->assi->accept(this);
+    else if (s->block != nullptr)
+        return s->block->accept(this);
+    else if (s->delay != nullptr)
+        return s->delay->accept(this);
+    else if (s->forstmnt != nullptr)
+        return s->forstmnt->accept(this);
+    else if (s->fundec != nullptr)
+        return s->fundec->accept(this);
+    else if (s->ifstmnt != nullptr)
+        return s->ifstmnt->accept(this);
+    else if (s->pixel != nullptr)
+        return s->pixel->accept(this);
+    else if (s->print != nullptr)
+        return s->print->accept(this);
+    else if (s->rtrn != nullptr)
+        return s->rtrn->accept(this);
+    else if (s->vardec != nullptr)
+        return s->vardec->accept(this);
+    else if (s->whilestmnt != nullptr)
+        return s->whilestmnt->accept(this);
+    else
+    {
+        cout << "Error during Semantic Analysis: Problem with the Statement node" << endl;
+        return ERROR;
+    }
+}
+
+type SemanticVisitor::visit(ASTFunCall *fncall)
+{
+    Entity *newfuncall = symboltable->lookup(fncall->id->name);
+    if (newfuncall != nullptr)
+    {
+        cout << "An identifer with name \"" << fncall->id->name << "already exists" << endl;
+        return ERROR;
+    }
+
+    //! I need to add type field to the fundec AST class
+
+    // newfuncall = new Entity(fncall->id->name, "global",)
 }

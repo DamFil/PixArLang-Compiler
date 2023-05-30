@@ -252,7 +252,7 @@ void XMLVisitor::visit(ASTStatement *s)
     else if (s->block != nullptr)
         s->block->accept(this);
     else if (s->delay != nullptr)
-        s->delay != nullptr;
+        s->delay->accept(this);
     else if (s->forstmnt != nullptr)
         s->forstmnt->accept(this);
     else if (s->fundec != nullptr)
