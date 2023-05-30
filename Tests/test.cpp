@@ -35,12 +35,12 @@ int main()
     visitor->visit(parser3.root);
 
     Parser parser4 = Parser(lexer4);
-    parser.parse();
+    parser4.parse();
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROGRAM 4~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     visitor->visit(parser4.root);
 
     Parser parser5 = Parser(lexer5);
-    parser.parse();
+    parser5.parse();
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROGRAM 5~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     visitor->visit(parser5.root);
 
