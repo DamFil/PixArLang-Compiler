@@ -588,36 +588,6 @@ public:
     }
 };
 
-// class ASTTerm : public ASTNode
-//{
-// public:
-//     vector<ASTFactor *> factors;
-//
-//     ASTTerm(vector<ASTFactor *> factors) : factors(factors) {}
-//
-//     virtual ~ASTTerm() override;
-//
-//     void accept(XMLVisitor *visitor)
-//     {
-//         visitor->visit(this);
-//     }
-// };
-//
-// class ASTSimpleExpr : public ASTNode
-//{
-// public:
-//     vector<ASTTerm *> terms;
-//
-//     ASTSimpleExpr(vector<ASTTerm *> terms) : terms(terms) {}
-//
-//     virtual ~ASTSimpleExpr() override;
-//
-//     void accept(XMLVisitor *visitor)
-//     {
-//         visitor->visit(this);
-//     }
-// };
-
 class ASTExpr : public ASTNode
 {
 public:
