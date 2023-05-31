@@ -28,30 +28,35 @@ typedef enum representationType
     none
 } repr;
 
-class Entity
+typedef enum result
+{
+    sameScope,
+    diffScope
+} res;
+
+class TypeObject
 {
 public:
-    string name;
-    string scope;
-    type t;
-    repr r; // whether it is a function identifer, or just a variable
+    vector<type> types;
+    repr r;
 
-    Entity(string name, string scope, type t, repr r) : scope(scope), t(t), r(r) {}
-    ~Entity() {}
+    TypeObject(vector<type> types, repr r) : types(types), r(r) {}
+    ~TypeObject() {}
 };
 
 class SymbolTable
 {
 private:
     int current, tempCurrent;
-    vector<map<string, Entity *>> nmspaces{};
+    vector<map<string, TypeObject *>> nmspaces{};
 
 public:
     SymbolTable() : current(0), tempCurrent(0) {}
     ~SymbolTable() {}
 
-    void push(map<string, Entity *> binding)
+    void push()
     {
+        map<string, TypeObject *> binding{};
         nmspaces.push_back(binding);
         ++current;
     }
@@ -62,40 +67,33 @@ public:
         --current;
     }
 
-    Entity *lookup(string key)
+    TypeObject *lookup(string key)
     {
-        if (current == -1)
+        for (int i = current; i <= 0; i--)
         {
-            current = nmspaces.size() - 1; // resetting it back to the oriignal scope
-            cout << "Error: \"" << key << "\" is not declared anywhere." << endl;
-            // return new Entity("END", "END", NotAType, none); // I call this a fail Entity
-            return nullptr;
+            auto found = nmspaces.at(i).find(key);
+            if (found != nmspaces.at(i).end())
+            {
+                tempCurrent = i;
+                return (*found).second;
+            }
         }
-        try
-        {
-            Entity *found = nmspaces.at(current).at(key);
-            tempCurrent = current;
-            current = nmspaces.size() - 1;
-            return found;
-        }
-        catch (std::out_of_range)
-        {
-            --current;
-            lookup(key);
-        }
+
+        return nullptr;
     }
 
-    void insert(pair<string, Entity *> newkey)
+    res insert(pair<string, TypeObject *> newkey)
     {
         lookup(newkey.first);
         if (tempCurrent == current)
         {
-            // you are trying to redeclare an identifer in the same scope
-            cout << "Error: You already declared an identifier with that name in the same scope" << endl;
-            exit(EXIT_FAILURE);
+            // you are trying to insert 2 same identifiers in the same scope
+            cout << "Cannot have 2 same Identifiers in the same scope" << endl;
+            return sameScope;
         }
 
         nmspaces.at(current).insert(newkey);
+        return diffScope;
     }
 
     int getCurrent()
