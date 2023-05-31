@@ -324,9 +324,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -370,9 +370,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -390,9 +390,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -410,9 +410,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -431,9 +431,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -456,9 +456,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -521,7 +521,7 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    vector<type> accept(SemanticVisitor *visitor)
     {
         return visitor->visit(this);
     }
@@ -794,9 +794,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 
@@ -868,9 +868,9 @@ public:
         visitor->visit(this);
     }
 
-    type accept(SemanticVisitor *visitor)
+    type accept(SemanticVisitor *visitor, type funtype)
     {
-        return visitor->visit(this);
+        return visitor->visit(this, funtype);
     }
 };
 

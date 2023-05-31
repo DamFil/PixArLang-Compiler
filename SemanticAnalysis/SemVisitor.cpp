@@ -1,6 +1,20 @@
 #include "SemVisitor.h"
 #include "../Parser/AST.h"
 
+inline type returnType(string t)
+{
+    if (t == "int")
+        return integer;
+    if (t == "float")
+        return floater;
+    if (t == "bool")
+        return boolean;
+    if (t == "colour")
+        return colour;
+
+    return NotAType;
+}
+
 type SemanticVisitor::visit(ASTLit *lit)
 {
     if (lit->intl != nullptr)
@@ -56,33 +70,35 @@ type SemanticVisitor::visit(ASTPadH *padw)
 
 type SemanticVisitor::visit(ASTId *id)
 {
-    Entity *found = symboltable->lookup(id->name);
+    TypeObject *found = symboltable->lookup(id->name);
     if (found == nullptr)
     {
         cout << "No Identifier with the name: \"" << id->name << "\" has been found" << endl;
         return ERROR;
     }
-    typeOfExpression = found->t;
-    return found->t;
+
+    if (found->r == fun)
+    {
+        cout << "\"" << id->name << "\" is a function. To call it you have to do: \"" << id->name << "()\"" << endl;
+        return ERROR;
+    }
+
+    return found->types.at(0);
 }
 
 type SemanticVisitor::visit(ASTVarDecl *vardecl)
 {
-    type t;
-    if (vardecl->type == "int")
-        t = integer;
-    else if (vardecl->type == "float")
-        t = floater;
-    else if (vardecl->type == "colour")
-        t = colour;
-    else if (vardecl->type == "bool")
-        t = boolean;
+    type t = returnType(vardecl->type);
 
-    string scope = symboltable->getCurrent() == 0 ? "global" : "local";
-
-    Entity *newvar = new Entity(vardecl->id->name, scope, t, var);
+    TypeObject *newvar = new TypeObject({t}, var);
     pair toinsert(vardecl->id->name, newvar);
-    symboltable->insert(toinsert);
+    res r = symboltable->insert(toinsert);
+
+    if (r == sameScope)
+    {
+        cout << "Cannot declare 2 entities with the same Identifier name in the same scope: \"" << vardecl->id->name << "\"." << endl;
+        return ERROR;
+    }
 
     return NotAType;
 }
@@ -166,7 +182,7 @@ type SemanticVisitor::visit(ASTBinOp *binop)
             binop->op == "*" || binop->op == "/" ||
             binop->op == "=")
         {
-            cout << "Cannot use non-relational Operators on Boolean Expressions" << endl;
+            cout << "Cannot use non-relational operators on boolean expressions" << endl;
             return ERROR;
         }
     }
@@ -279,30 +295,30 @@ type SemanticVisitor::visit(ASTPixelStmnt *pixel)
     return NotAType;
 }
 
-type SemanticVisitor::visit(ASTStatement *s)
+type SemanticVisitor::visit(ASTStatement *s, type funtype)
 {
     if (s->assi != nullptr)
         return s->assi->accept(this);
     else if (s->block != nullptr)
-        return s->block->accept(this);
+        return s->block->accept(this, funtype);
     else if (s->delay != nullptr)
         return s->delay->accept(this);
     else if (s->forstmnt != nullptr)
-        return s->forstmnt->accept(this);
+        return s->forstmnt->accept(this, funtype);
     else if (s->fundec != nullptr)
         return s->fundec->accept(this);
     else if (s->ifstmnt != nullptr)
-        return s->ifstmnt->accept(this);
+        return s->ifstmnt->accept(this, funtype);
     else if (s->pixel != nullptr)
         return s->pixel->accept(this);
     else if (s->print != nullptr)
         return s->print->accept(this);
     else if (s->rtrn != nullptr)
-        return s->rtrn->accept(this);
+        return s->rtrn->accept(this, funtype);
     else if (s->vardec != nullptr)
         return s->vardec->accept(this);
     else if (s->whilestmnt != nullptr)
-        return s->whilestmnt->accept(this);
+        return s->whilestmnt->accept(this, funtype);
     else
     {
         cout << "Error during Semantic Analysis: Problem with the Statement node" << endl;
@@ -312,14 +328,207 @@ type SemanticVisitor::visit(ASTStatement *s)
 
 type SemanticVisitor::visit(ASTFunCall *fncall)
 {
-    Entity *newfuncall = symboltable->lookup(fncall->id->name);
-    if (newfuncall != nullptr)
+    TypeObject *func = symboltable->lookup(fncall->id->name);
+    if (func == nullptr)
     {
-        cout << "An identifer with name \"" << fncall->id->name << "already exists" << endl;
+        cout << "Function with the name of \"" << fncall->id->name << "\" has not been declared yet" << endl;
         return ERROR;
     }
 
-    //! I need to add type field to the fundec AST class
+    if (func->r != fun)
+    {
+        cout << "The identifer \"" << fncall->id->name << "\" is not a function" << endl;
+        return ERROR;
+    }
 
-    // newfuncall = new Entity(fncall->id->name, "global",)
+    // I need to check for the validity of the parameters
+    vector<type> types = fncall->params->accept(this);
+    for (int i = 0; i < types.size(); i++)
+    {
+        if (types.at(i) != func->types.at(i))
+        {
+            cout << "The arguments do not match the defentition of the function: \"" << fncall->id->name << "\"." << endl;
+            return ERROR;
+        }
+    }
+
+    // returns the type of the function declaration
+    return func->types.at(func->types.size() - 1); // the last type in the types field is the return type
+}
+
+type SemanticVisitor::visit(ASTFunDec *fndec)
+{
+    // obtaining the type of the function declaration i.e. type = (type param1, type param2, ..., rtrn type)
+    vector<type> types{};
+    for (int i = 0; i < fndec->params->params.size(); i++)
+    {
+        types.push_back(returnType(fndec->params->params.at(i)->type));
+    }
+    types.push_back(returnType(fndec->rtrntype));
+
+    // create the TypeObject instance and insert it into the current scope in the symbol table
+    TypeObject *newfun = new TypeObject(types, fun);
+    pair toinsert(fndec->id->name, newfun);
+    if (symboltable->insert(toinsert) == sameScope)
+        return ERROR;
+
+    // params will create a new scope and then so will block i.e.(params(block(---)))
+    fndec->params->accept(this);
+    type t = fndec->block->accept(this, types.at(types.size() - 1));
+
+    if (t != *(types.end())) // equivalent to types.at(types.size() - 1)
+    {
+        cout << "The return type is not the same as the type of the function" << endl;
+        return ERROR;
+    }
+
+    // pop is called twice because params creates a new scope and block creates a new scope as well
+    symboltable->pop();
+    symboltable->pop();
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTRtrnStmnt *rtrn, type funtype)
+{
+    type t = rtrn->expr->accept(this);
+    if (t != funtype)
+    {
+        cout << "Ther returned value does not matcht the type of the function" << endl;
+        return ERROR;
+    }
+
+    return NotAType;
+}
+
+vector<type> SemanticVisitor::visit(ASTParams *actualparams)
+{
+    vector<type> types{};
+    for (int i = 0; i < actualparams->expressions.size(); i++)
+    {
+        types.push_back(actualparams->expressions.at(i)->accept(this));
+    }
+
+    return types;
+}
+
+type SemanticVisitor::visit(ASTFormalParam *par)
+{
+    type t = returnType(par->type);
+    TypeObject *newparam = new TypeObject({t}, param);
+    pair toinsert(par->id->name, newparam);
+    symboltable->insert(toinsert);
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTFormalParams *params)
+{
+    symboltable->push();
+    for (int i = 0; i < params->params.size(); i++)
+    {
+        params->params.at(i)->accept(this);
+    }
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTIfStmn *ifstmnt, type funtype)
+{
+    type cond = ifstmnt->cond->accept(this);
+    if (cond != boolean)
+    {
+        cout << "The condition inside if statements has to be of type bool" << endl;
+        return ERROR;
+    }
+
+    ifstmnt->ifbody->accept(this, funtype);
+    if (ifstmnt->elsebody != nullptr)
+    {
+        ifstmnt->elsebody->accept(this, funtype);
+    }
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTWhile *whilestmnt, type funtype)
+{
+    type cond = whilestmnt->condtn->accept(this);
+    if (cond != boolean)
+    {
+        cout << "The condition inside for the while loophas to be of type bool" << endl;
+        return ERROR;
+    }
+
+    whilestmnt->stmnts->accept(this, funtype);
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTFor *forstmnt, type funtype)
+{
+    // create a new block
+    symboltable->push();
+
+    if (forstmnt->vardec != nullptr)
+        forstmnt->vardec->accept(this);
+
+    type cond = forstmnt->expr->accept(this);
+    if (cond != boolean)
+    {
+        cout << "The condition inside the for loop declaration needs to be of type bool" << endl;
+        return ERROR;
+    }
+
+    if (forstmnt->assignment != nullptr)
+    {
+        if (forstmnt->assignment->accept(this) == ERROR)
+            return ERROR;
+    }
+
+    type t = forstmnt->block->accept(this, funtype);
+
+    return t;
+}
+
+type SemanticVisitor::visit(ASTBlock *block, type funtype)
+{
+    symboltable->push();
+
+    for (int i = 0; i < block->stmnts.size(); i++)
+    {
+        block->stmnts.at(i)->accept(this, funtype);
+    }
+
+    symboltable->pop();
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTIfBody *ifbody, type funtype)
+{
+    symboltable->push();
+
+    for (int i = 0; i < ifbody->stmnts.size(); i++)
+    {
+        ifbody->stmnts.at(i)->accept(this, funtype);
+    }
+
+    symboltable->pop();
+
+    return NotAType;
+}
+
+type SemanticVisitor::visit(ASTElseBody *elsebody, type funtype)
+{
+    symboltable->push();
+
+    for (int i = 0; i < elsebody->stmnts.size(); i++)
+    {
+        elsebody->stmnts.at(i)->accept(this, funtype);
+    }
+
+    symboltable->pop();
+
+    return NotAType;
 }

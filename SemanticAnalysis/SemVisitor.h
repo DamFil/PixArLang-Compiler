@@ -80,19 +80,19 @@ public:
     type visit(ASTReadStmnt *);
     type visit(ASTPixelStmnt *);
 
-    type visit(ASTStatement *);
+    type visit(ASTStatement *, type funtype);
     type visit(ASTFunCall *);
     type visit(ASTFunDec *);
-    type visit(ASTRtrnStmnt *);
-    type visit(ASTParams *);
+    type visit(ASTRtrnStmnt *, type funtype);
+    vector<type> visit(ASTParams *);
     type visit(ASTFormalParam *);
     type visit(ASTFormalParams *);
-    type visit(ASTIfStmn *);
-    type visit(ASTIfBody *);
-    type visit(ASTElseBody *);
-    type visit(ASTWhile *);
-    type visit(ASTFor *);
+    type visit(ASTIfStmn *, type funtype);
+    type visit(ASTIfBody *, type funtype);
+    type visit(ASTElseBody *, type funtype);
+    type visit(ASTWhile *, type funtype);
+    type visit(ASTFor *, type funtype);
 
-    type visit(ASTBlock *);
+    type visit(ASTBlock *, type funtype);
     type visit(ASTProgram *);
 };
