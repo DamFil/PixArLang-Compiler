@@ -532,3 +532,17 @@ type SemanticVisitor::visit(ASTElseBody *elsebody, type funtype)
 
     return NotAType;
 }
+
+type SemanticVisitor::visit(ASTProgram *program)
+{
+    symboltable->push();
+
+    for (int i = 0; i < program->stmnts.size(); i++)
+    {
+        program->stmnts.at(i)->accept(this, NotAType);
+    }
+
+    symboltable->pop();
+
+    return NotAType;
+}
