@@ -34,37 +34,31 @@ type SemanticVisitor::visit(ASTLit *lit)
 
 type SemanticVisitor::visit(ASTIntLit *intl)
 {
-    typeOfExpression = integer;
     return integer;
 }
 
 type SemanticVisitor::visit(ASTFloatLit *floatl)
 {
-    typeOfExpression = floater;
     return floater;
 }
 
 type SemanticVisitor::visit(ASTColourLit *coll)
 {
-    typeOfExpression = colour;
     return colour;
 }
 
 type SemanticVisitor::visit(ASTBoolLit *booll)
 {
-    typeOfExpression = boolean;
     return boolean;
 }
 
 type SemanticVisitor::visit(ASTPadH *padh)
 {
-    typeOfExpression = integer;
     return integer;
 }
 
 type SemanticVisitor::visit(ASTPadH *padw)
 {
-    typeOfExpression = integer;
     return integer;
 }
 

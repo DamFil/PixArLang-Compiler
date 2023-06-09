@@ -43,11 +43,10 @@ class ASTStatement;
 
 class SemanticVisitor
 {
-    type typeOfExpression;
     SymbolTable *symboltable;
 
 public:
-    SemanticVisitor() : typeOfExpression(NotAType), symboltable(new SymbolTable()) {}
+    SemanticVisitor() : symboltable(new SymbolTable()) {}
     ~SemanticVisitor()
     {
         delete symboltable;
