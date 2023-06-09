@@ -1,5 +1,5 @@
 fun XGreaterY (x:int , y:int) -> bool {
     let ans : bool = true;
-    if (y > x) { ans = true; }
+    if (y > x) { ans = false; }
     return ans;
 }
