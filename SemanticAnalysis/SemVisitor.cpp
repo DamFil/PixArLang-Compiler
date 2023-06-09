@@ -57,7 +57,7 @@ type SemanticVisitor::visit(ASTPadH *padh)
     return integer;
 }
 
-type SemanticVisitor::visit(ASTPadH *padw)
+type SemanticVisitor::visit(ASTPadW *padw)
 {
     return integer;
 }
